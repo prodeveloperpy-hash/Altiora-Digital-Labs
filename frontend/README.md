@@ -12,6 +12,8 @@ from the API. The backend is assumed to expose the endpoints documented below.
 
 For complete installation instructions, environment setup, verification, and
 troubleshooting, see [Local development](docs/LOCAL_DEVELOPMENT.md).
+For directory responsibilities, see
+[Frontend folder structure](docs/FOLDER_STRUCTURE.md).
 
 ```bash
 npm install

@@ -17,6 +17,8 @@ its supporting lookup tables.
 For complete native Python and Docker instructions, including verification,
 tests, configuration, and troubleshooting, see
 [Local development](docs/LOCAL_DEVELOPMENT.md).
+For directory and layer responsibilities, see
+[Backend folder structure](docs/FOLDER_STRUCTURE.md).
 
 ### Option A — Docker (recommended)
 

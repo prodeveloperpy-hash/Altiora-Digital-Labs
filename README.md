@@ -56,6 +56,10 @@ Open <http://localhost:5173>. During development, Vite proxies `/api` and
   database initialization, tests, configuration, and troubleshooting.
 - [Frontend local setup](frontend/docs/LOCAL_DEVELOPMENT.md) — Node setup, environment
   variables, development/build commands, and troubleshooting.
+- [Backend folder structure](backend/docs/FOLDER_STRUCTURE.md) — backend
+  directories and layer ownership.
+- [Frontend folder structure](frontend/docs/FOLDER_STRUCTURE.md) — frontend
+  directories and organization rules.
 - [Backend reference](backend/README.md) — API, architecture, database, admin,
   and recommendation-engine documentation.
 - [Frontend reference](frontend/README.md) — UI architecture and expected API
