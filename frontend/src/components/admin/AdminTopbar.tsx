@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Menu, Moon, Sun, ExternalLink } from 'lucide-react';
+import { LogOut, Menu, ExternalLink } from 'lucide-react';
 import { ROUTES } from '@/config/constants';
-import { useTheme } from '@/context/theme/useTheme';
 import { useAdminAuth } from '@/features/admin/auth/useAdminAuth';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 interface AdminTopbarProps {
   onMenuClick: () => void;
@@ -20,7 +20,6 @@ const ROLE_LABEL: Record<string, string> = {
 /** Top navigation bar: mobile menu toggle, theme switch, and account menu. */
 export function AdminTopbar({ onMenuClick, onLogout }: AdminTopbarProps) {
   const { user } = useAdminAuth();
-  const { isDark, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const initials = (user?.fullName || user?.username || '?')
@@ -50,14 +49,7 @@ export function AdminTopbar({ onMenuClick, onLogout }: AdminTopbarProps) {
           View site
         </Link>
 
-        <button
-          type="button"
-          onClick={toggleTheme}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-        >
-          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </button>
+        <ThemeToggle />
 
         <div className="relative">
           <button
