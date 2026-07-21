@@ -8,6 +8,12 @@ This app is **frontend only**. It integrates with a backend over HTTP and
 contains **no mock data** — every list, card, recommendation, and FAQ is fetched
 from the API. The backend is assumed to expose the endpoints documented below.
 
+## Frontend overview
+
+For a complete product introduction, page-by-page guide, admin overview,
+architecture, data flow, state ownership, and contributor directions, see the
+[Frontend application overview](docs/APP_OVERVIEW.md).
+
 ## Getting started
 
 For complete installation instructions, environment setup, verification, and

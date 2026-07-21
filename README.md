@@ -4,6 +4,10 @@ CardWise is a full-stack credit-card discovery and recommendation application.
 The React/Vite client is in `frontend/`; the FastAPI/SQLAlchemy API and Alembic
 migrations are in `backend/`.
 
+For a complete introduction to the user interface, public and admin pages,
+frontend architecture, data flow, and contributor guidance, read the
+[Frontend application overview](frontend/docs/APP_OVERVIEW.md).
+
 ## Run the full application locally
 
 Use two terminals. Start the backend first, and then start the frontend.
@@ -52,6 +56,8 @@ Open <http://localhost:5173>. During development, Vite proxies `/api` and
 
 ## Detailed documentation
 
+- [Frontend application overview](frontend/docs/APP_OVERVIEW.md) — introduction,
+  pages, capabilities, architecture, data flow, and contributor direction.
 - [Backend local setup](backend/docs/LOCAL_DEVELOPMENT.md) — Python and Docker setup,
   database initialization, tests, configuration, and troubleshooting.
 - [Frontend local setup](frontend/docs/LOCAL_DEVELOPMENT.md) — Node setup, environment
