@@ -117,6 +117,6 @@ class RecommendationEngine:
 
 
 def _stringify(value: object) -> str:
-    if isinstance(value, (list, tuple, set)):
+    if isinstance(value, list | tuple | set):
         return ",".join(str(item) for item in value)
     return str(value)

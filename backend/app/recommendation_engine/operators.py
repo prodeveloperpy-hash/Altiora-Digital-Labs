@@ -53,13 +53,13 @@ def answer_value(field: str | None, answers: Answers):
 def as_number(value: object) -> float | None:
     if isinstance(value, bool):
         return None
-    if isinstance(value, (int, float)):
+    if isinstance(value, int | float):
         return float(value)
     return None
 
 
 def _as_list(value: object) -> list | None:
-    if isinstance(value, (list, tuple, set)):
+    if isinstance(value, list | tuple | set):
         return list(value)
     return None
 

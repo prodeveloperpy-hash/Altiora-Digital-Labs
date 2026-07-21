@@ -7,7 +7,7 @@ import math
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.exceptions import ConflictError, NotFoundError
+from app.exceptions import ConflictError, NotFoundError, ValidationError
 from app.models.card import CreditCard
 from app.models.reward_rate import RewardRate
 from app.repositories.card_repository import CardQuery, CardRepository
@@ -72,7 +72,7 @@ class CardService:
             is_featured=payload.is_featured,
             is_active=payload.is_active,
         )
-        card.categories = self.repo.resolve_categories(payload.categories)
+        card.categories = self._resolve_categories(payload.categories)
         card.reward_rates = [
             RewardRate(
                 category=rate.category, rate=rate.rate, unit=rate.unit, cap=rate.cap, position=i
@@ -96,7 +96,7 @@ class CardService:
         data = payload.model_dump(exclude_unset=True)
 
         if "categories" in data:
-            card.categories = self.repo.resolve_categories(data.pop("categories") or [])
+            card.categories = self._resolve_categories(data.pop("categories") or [])
         if "reward_rates" in data:
             rates = data.pop("reward_rates") or []
             card.reward_rates = [
@@ -127,3 +127,14 @@ class CardService:
             raise NotFoundError(f"Card '{identifier}' was not found.")
         self.repo.delete(card)
         self.db.commit()
+
+    def _resolve_categories(self, slugs: list[str]):
+        categories = self.repo.resolve_categories(slugs)
+        found = {category.slug for category in categories}
+        missing = sorted(set(slugs) - found)
+        if missing:
+            raise ValidationError(
+                "One or more categories do not exist.",
+                errors={"categories": f"Unknown category slugs: {', '.join(missing)}"},
+            )
+        return categories

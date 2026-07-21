@@ -21,7 +21,8 @@ RUN chmod +x /app/entrypoint.sh
 
 # Run as a non-root user.
 RUN useradd --create-home --uid 1000 appuser \
-    && chown -R appuser:appuser /app
+    && mkdir -p /data \
+    && chown -R appuser:appuser /app /data
 USER appuser
 
 EXPOSE 8000

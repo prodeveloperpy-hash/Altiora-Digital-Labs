@@ -83,10 +83,10 @@ class RuleLoader:
 def _mapping_matches(answer_value: str | None, answer: object) -> bool:
     # A null/wildcard answer_value matches whenever the question was answered.
     if answer_value in (None, "", "*"):
-        if isinstance(answer, (list, tuple, set)):
+        if isinstance(answer, list | tuple | set):
             return len(answer) > 0
         return answer is not None
-    if isinstance(answer, (list, tuple, set)):
+    if isinstance(answer, list | tuple | set):
         return answer_value in {str(item) for item in answer}
     if isinstance(answer, bool):
         return str(answer).lower() == answer_value.lower()

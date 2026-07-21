@@ -13,9 +13,14 @@ services:
       CORS_ORIGINS: '["http://localhost:5173","http://127.0.0.1:5173"]'
       RATE_LIMIT_REQUESTS: "100"
       RATE_LIMIT_WINDOW_SECONDS: "60"
+      AUTO_CREATE_TABLES: "false"
+      TRUST_PROXY_HEADERS: "false"
     volumes:
       - cardwise-data:/data
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   cardwise-data:

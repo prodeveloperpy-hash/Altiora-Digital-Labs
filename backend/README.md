@@ -58,6 +58,8 @@ sensible default.
 | ---------------------------- | ------------------------------------- | -------------------------------------------- |
 | `DATABASE_URL`               | `sqlite:///./cardwise.db`             | SQLAlchemy database URL.                      |
 | `API_PREFIX`                 | `/api`                                | Prefix for all API routes.                   |
+| `ADMIN_API_KEY`              | unset                                 | Protects mutation endpoints via `X-API-Key`. Set in deployments. |
+| `TRUST_PROXY_HEADERS`        | `false`                               | Trust `X-Forwarded-For`; enable only behind a trusted proxy. |
 | `CORS_ORIGINS`               | `["http://localhost:5173", …]`        | Allowed CORS origins (JSON array).           |
 | `RATE_LIMIT_ENABLED`         | `true`                                | Toggle rate limiting.                        |
 | `RATE_LIMIT_REQUESTS`        | `100`                                 | Requests allowed per window per client.      |
@@ -99,6 +101,11 @@ Additionally, `GET /health` (root, no prefix) is a lightweight liveness probe.
 `{ items, page, pageSize, total, totalPages }`.
 
 All responses use **camelCase** field names to match the frontend contract.
+
+Mutation endpoints accept an `X-API-Key` header when `ADMIN_API_KEY` is set.
+The key is optional only to keep local development and the sample test suite
+frictionless; production deployments must provide a strong secret through the
+deployment platform rather than committing it to Compose or source control.
 
 ### Errors
 

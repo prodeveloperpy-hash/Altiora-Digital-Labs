@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, status
 
-from app.api.deps import CategoryServiceDep
+from app.api.deps import AdminAccess, CategoryServiceDep
 from app.schemas.category import CategoryCreate, CategoryRead
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
@@ -21,5 +21,7 @@ def list_categories(service: CategoryServiceDep) -> list[CategoryRead]:
     status_code=status.HTTP_201_CREATED,
     summary="Create a category",
 )
-def create_category(service: CategoryServiceDep, payload: CategoryCreate) -> CategoryRead:
+def create_category(
+    service: CategoryServiceDep, payload: CategoryCreate, _admin: AdminAccess
+) -> CategoryRead:
     return service.create_category(payload)

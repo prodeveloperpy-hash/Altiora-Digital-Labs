@@ -23,10 +23,14 @@ class Settings(BaseSettings):
     app_name: str = "CardWise API"
     app_version: str = "1.0.0"
     environment: str = Field(default="development")
-    debug: bool = False
+    # Avoid colliding with generic DEBUG variables injected by shells/CI tools.
+    debug: bool = Field(default=False, validation_alias="CARDWISE_DEBUG")
 
     # --- API -------------------------------------------------------------
     api_prefix: str = "/api"
+    # Optional key protecting administrative mutation endpoints. Set this in
+    # every deployed environment; reads remain public.
+    admin_api_key: str | None = None
 
     # --- Database --------------------------------------------------------
     # Default to a file-based SQLite database in the working directory.
@@ -49,6 +53,8 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool = True
     rate_limit_requests: int = 100
     rate_limit_window_seconds: int = 60
+    # Only honor X-Forwarded-For when the service is behind a trusted proxy.
+    trust_proxy_headers: bool = False
 
     # --- Recommendation engine ------------------------------------------
     # Maximum number of recommendations returned from a single request.

@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Path, Query, status
 
-from app.api.deps import CardServiceDep
+from app.api.deps import AdminAccess, CardServiceDep
 from app.exceptions import ValidationError
 from app.repositories.card_repository import CardQuery
 from app.schemas.card import CardCreate, CardRead, CardUpdate
@@ -78,6 +78,11 @@ def compare_cards(
             "Provide at least one card id via the 'ids' query parameter.",
             errors={"ids": "This field is required."},
         )
+    if len(id_list) > 10:
+        raise ValidationError(
+            "At most 10 cards can be compared at once.",
+            errors={"ids": "Provide no more than 10 card ids."},
+        )
     return service.compare(id_list)
 
 
@@ -95,16 +100,16 @@ def get_card(
     status_code=status.HTTP_201_CREATED,
     summary="Create a card",
 )
-def create_card(service: CardServiceDep, payload: CardCreate) -> CardRead:
+def create_card(service: CardServiceDep, payload: CardCreate, _admin: AdminAccess) -> CardRead:
     return service.create_card(payload)
 
 
-@router.put("/{card_id}", response_model=CardRead, summary="Replace/update a card")
 @router.patch("/{card_id}", response_model=CardRead, summary="Partially update a card")
 def update_card(
     service: CardServiceDep,
     card_id: Annotated[str, Path(description="Card id or slug")],
     payload: CardUpdate,
+    _admin: AdminAccess,
 ) -> CardRead:
     return service.update_card(card_id, payload)
 
@@ -117,6 +122,7 @@ def update_card(
 def delete_card(
     service: CardServiceDep,
     card_id: Annotated[str, Path(description="Card id or slug")],
+    _admin: AdminAccess,
 ):
     service.delete_card(card_id)
     return None

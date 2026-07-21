@@ -23,7 +23,9 @@ logger = logging.getLogger("cardwise")
 async def lifespan(_app: FastAPI):
     """Application startup/shutdown lifecycle."""
     configure_logging()
-    logger.info("Starting %s v%s (%s)", settings.app_name, settings.app_version, settings.environment)
+    logger.info(
+        "Starting %s v%s (%s)", settings.app_name, settings.app_version, settings.environment
+    )
 
     if settings.auto_create_tables:
         from app.database import Base, engine
@@ -66,13 +68,14 @@ def create_app() -> FastAPI:
         limit=settings.rate_limit_requests,
         window_seconds=settings.rate_limit_window_seconds,
         enabled=settings.rate_limit_enabled,
+        trust_proxy_headers=settings.trust_proxy_headers,
     )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Accept", "Content-Type", "X-API-Key", "X-Request-ID"],
         expose_headers=["X-Request-ID", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
     )
 
@@ -82,6 +85,17 @@ def create_app() -> FastAPI:
     # --- Routes ----------------------------------------------------------
     # API routes live under the configured prefix (default "/api").
     app.include_router(api_router, prefix=settings.api_prefix)
+
+    @app.middleware("http")
+    async def security_headers(request, call_next):  # noqa: ANN001
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault(
+            "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
+        )
+        return response
 
     @app.get("/", include_in_schema=False)
     async def root() -> RedirectResponse:

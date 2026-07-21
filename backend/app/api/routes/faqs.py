@@ -6,7 +6,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, status
 
-from app.api.deps import FaqServiceDep
+from app.api.deps import AdminAccess, FaqServiceDep
 from app.schemas.faq import FaqCreate, FaqRead, FaqUpdate
 
 router = APIRouter(prefix="/faqs", tags=["FAQs"])
@@ -23,7 +23,7 @@ def list_faqs(service: FaqServiceDep) -> list[FaqRead]:
     status_code=status.HTTP_201_CREATED,
     summary="Create an FAQ",
 )
-def create_faq(service: FaqServiceDep, payload: FaqCreate) -> FaqRead:
+def create_faq(service: FaqServiceDep, payload: FaqCreate, _admin: AdminAccess) -> FaqRead:
     return service.create_faq(payload)
 
 
@@ -32,6 +32,7 @@ def update_faq(
     service: FaqServiceDep,
     faq_id: Annotated[str, Path(description="FAQ id")],
     payload: FaqUpdate,
+    _admin: AdminAccess,
 ) -> FaqRead:
     return service.update_faq(faq_id, payload)
 
@@ -44,6 +45,7 @@ def update_faq(
 def delete_faq(
     service: FaqServiceDep,
     faq_id: Annotated[str, Path(description="FAQ id")],
+    _admin: AdminAccess,
 ):
     service.delete_faq(faq_id)
     return None

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from app.config import settings
+
 
 def test_list_cards_returns_paginated_camel_case(client: TestClient) -> None:
     response = client.get("/api/cards")
@@ -111,6 +113,18 @@ def test_compare_requires_ids(client: TestClient) -> None:
     assert response.json()["code"] == "validation_error"
 
 
+def test_compare_rejects_unbounded_id_list(client: TestClient) -> None:
+    response = client.get("/api/cards/compare", params={"ids": ",".join(str(i) for i in range(11))})
+    assert response.status_code == 422
+
+
+def test_search_treats_wildcards_as_literal_text(client: TestClient) -> None:
+    response = client.get("/api/cards", params={"search": "%"})
+    unfiltered = client.get("/api/cards")
+    assert response.status_code == 200
+    assert response.json()["total"] < unfiltered.json()["total"]
+
+
 def test_card_crud_lifecycle(client: TestClient) -> None:
     payload = {
         "slug": "test-crud-card",
@@ -166,3 +180,36 @@ def test_list_categories_with_counts(client: TestClient) -> None:
     assert len(categories) >= 1
     cashback = next(c for c in categories if c["slug"] == "cashback")
     assert cashback["cardCount"] >= 1
+
+
+def test_unknown_category_is_rejected(client: TestClient) -> None:
+    payload = {
+        "slug": "invalid-category-card",
+        "name": "Invalid Category Card",
+        "issuer": "Test Bank",
+        "network": "visa",
+        "categories": ["does-not-exist"],
+    }
+    response = client.post("/api/cards", json=payload)
+    assert response.status_code == 422
+    assert "categories" in response.json()["errors"]
+
+
+def test_mutations_require_configured_admin_key(client: TestClient) -> None:
+    previous = settings.admin_api_key
+    settings.admin_api_key = "test-secret"
+    try:
+        denied = client.post(
+            "/api/categories", json={"slug": "protected", "name": "Protected"}
+        )
+        allowed = client.post(
+            "/api/categories",
+            json={"slug": "protected", "name": "Protected"},
+            headers={"X-API-Key": "test-secret"},
+        )
+    finally:
+        settings.admin_api_key = previous
+
+    assert denied.status_code == 401
+    assert denied.json()["code"] == "unauthorized"
+    assert allowed.status_code == 201

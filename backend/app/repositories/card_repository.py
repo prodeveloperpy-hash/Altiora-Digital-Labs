@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -50,13 +50,20 @@ class CardRepository:
 
     def _apply_filters(self, stmt, query: CardQuery):
         if query.search:
-            term = f"%{query.search.strip().lower()}%"
+            escaped = (
+                query.search.strip()
+                .lower()
+                .replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_")
+            )
+            term = f"%{escaped}%"
             stmt = stmt.where(
                 or_(
-                    func.lower(CreditCard.name).like(term),
-                    func.lower(CreditCard.issuer).like(term),
-                    func.lower(CreditCard.summary).like(term),
-                    func.lower(CreditCard.description).like(term),
+                    func.lower(CreditCard.name).like(term, escape="\\"),
+                    func.lower(CreditCard.issuer).like(term, escape="\\"),
+                    func.lower(CreditCard.summary).like(term, escape="\\"),
+                    func.lower(CreditCard.description).like(term, escape="\\"),
                 )
             )
         if query.category:

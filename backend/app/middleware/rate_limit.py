@@ -47,16 +47,20 @@ class _FixedWindowCounter:
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, limit: int, window_seconds: int, enabled: bool = True) -> None:
+    def __init__(
+        self, app, limit: int, window_seconds: int, enabled: bool = True,
+        trust_proxy_headers: bool = False,
+    ) -> None:
         super().__init__(app)
         self.enabled = enabled
         self.limit = limit
         self.window = window_seconds
+        self.trust_proxy_headers = trust_proxy_headers
         self._counter = _FixedWindowCounter(limit, window_seconds)
 
     def _client_key(self, request: Request) -> str:
         # Honor a proxy-provided client IP when present.
-        forwarded = request.headers.get("X-Forwarded-For")
+        forwarded = request.headers.get("X-Forwarded-For") if self.trust_proxy_headers else None
         if forwarded:
             return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"

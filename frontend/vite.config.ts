@@ -25,6 +25,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Avoid publishing original source in production artifacts by default.
+    sourcemap: false,
   },
 });
