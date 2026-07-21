@@ -1,0 +1,21 @@
+services:
+  api:
+    build: .
+    image: cardwise-api:latest
+    container_name: cardwise-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Persist SQLite to the mounted volume.
+      DATABASE_URL: "sqlite:////data/cardwise.db"
+      ENVIRONMENT: "production"
+      LOG_LEVEL: "INFO"
+      CORS_ORIGINS: '["http://localhost:5173","http://127.0.0.1:5173"]'
+      RATE_LIMIT_REQUESTS: "100"
+      RATE_LIMIT_WINDOW_SECONDS: "60"
+    volumes:
+      - cardwise-data:/data
+    restart: unless-stopped
+
+volumes:
+  cardwise-data:
