@@ -10,6 +10,9 @@ from the API. The backend is assumed to expose the endpoints documented below.
 
 ## Getting started
 
+For complete installation instructions, environment setup, verification, and
+troubleshooting, see [Local development](docs/LOCAL_DEVELOPMENT.md).
+
 ```bash
 npm install
 npm run dev        # start the dev server on http://localhost:5173

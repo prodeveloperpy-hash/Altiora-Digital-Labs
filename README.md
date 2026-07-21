@@ -1,27 +1,85 @@
 # CardWise
 
 CardWise is a full-stack credit-card discovery and recommendation application.
-The React/Vite client lives in `frontend/`; the FastAPI/SQLAlchemy service and
-its Alembic migrations live in `backend/`.
+The React/Vite client is in `frontend/`; the FastAPI/SQLAlchemy API and Alembic
+migrations are in `backend/`.
 
-## Local development
+## Run the full application locally
 
-1. Follow `backend/README.md` to create a Python 3.12 environment and start the API.
-2. Copy `frontend/.env.example` to `frontend/.env`.
-3. In `frontend/`, run `npm install` and `npm run dev`.
+Use two terminals. Start the backend first, and then start the frontend.
 
-The frontend runs at http://localhost:5173 and proxies `/api` to the backend at
-http://localhost:8000. API documentation is available at http://localhost:8000/docs.
+### 1. Start the backend
+
+For a native Python setup, follow
+[`backend/docs/LOCAL_DEVELOPMENT.md`](backend/docs/LOCAL_DEVELOPMENT.md). The short version
+for Windows PowerShell is:
+
+```powershell
+cd backend
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+Copy-Item .env.example .env -ErrorAction SilentlyContinue
+python -m alembic upgrade head
+python -m app.database.seed
+python -m uvicorn app.main:app --reload
+```
+
+Docker is also supported:
+
+```powershell
+cd backend
+docker compose up --build
+```
+
+Verify the API at <http://localhost:8000/health> and open its Swagger UI at
+<http://localhost:8000/docs>.
+
+### 2. Start the frontend
+
+Follow [`frontend/docs/LOCAL_DEVELOPMENT.md`](frontend/docs/LOCAL_DEVELOPMENT.md). The short
+version is:
+
+```powershell
+cd frontend
+Copy-Item .env.example .env -ErrorAction SilentlyContinue
+npm install
+npm run dev
+```
+
+Open <http://localhost:5173>. During development, Vite proxies `/api` and
+`/uploads` requests to the backend at <http://localhost:8000>.
+
+## Detailed documentation
+
+- [Backend local setup](backend/docs/LOCAL_DEVELOPMENT.md) — Python and Docker setup,
+  database initialization, tests, configuration, and troubleshooting.
+- [Frontend local setup](frontend/docs/LOCAL_DEVELOPMENT.md) — Node setup, environment
+  variables, development/build commands, and troubleshooting.
+- [Backend reference](backend/README.md) — API, architecture, database, admin,
+  and recommendation-engine documentation.
+- [Frontend reference](frontend/README.md) — UI architecture and expected API
+  contract.
 
 ## Quality checks
 
-- Backend: `python -m pytest` and `python -m ruff check app alembic`
-- Frontend: `npm run typecheck`, `npm run lint`, and `npm run build`
+```powershell
+# From backend/ with its virtual environment active
+python -m pytest
+python -m ruff check app alembic
+
+# From frontend/
+npm run typecheck
+npm run lint
+npm run build
+```
 
 ## Production notes
 
-- Set a strong `ADMIN_API_KEY`; all API mutations must send it as `X-API-Key`.
-- Restrict `CORS_ORIGINS` to the deployed frontend origin.
-- Apply Alembic migrations before serving traffic and disable automatic schema creation.
-- SQLite is suitable for the included single-instance deployment. Use PostgreSQL
-  plus a shared rate-limit store for horizontally scaled production deployments.
+- Replace the development admin password and set strong `ADMIN_API_KEY` and
+  `CARDWISE_JWT_SECRET` values.
+- Restrict `CORS_ORIGINS` to deployed frontend origins.
+- Apply Alembic migrations before serving traffic and disable automatic schema
+  creation.
+- SQLite is suitable for this local/single-instance setup. Use PostgreSQL and a
+  shared rate-limit store when horizontally scaling the application.

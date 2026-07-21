@@ -14,6 +14,10 @@ its supporting lookup tables.
 
 ## Quick start
 
+For complete native Python and Docker instructions, including verification,
+tests, configuration, and troubleshooting, see
+[Local development](docs/LOCAL_DEVELOPMENT.md).
+
 ### Option A — Docker (recommended)
 
 ```bash
