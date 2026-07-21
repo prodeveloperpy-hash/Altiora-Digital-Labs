@@ -72,12 +72,13 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 3px 0 hsl(var(--shadow-color) / 0.08), 0 1px 2px -1px hsl(var(--shadow-color) / 0.08)',
+        card: '0 8px 24px -14px hsl(var(--shadow-color) / 0.22), 0 1px 3px hsl(var(--shadow-color) / 0.06)',
         elevated:
           '0 10px 30px -10px hsl(var(--shadow-color) / 0.25), 0 4px 12px -6px hsl(var(--shadow-color) / 0.15)',
-        glow: '0 0 0 1px hsl(var(--primary) / 0.15), 0 8px 30px -8px hsl(var(--primary) / 0.35)',
+        glow: '0 0 0 1px hsl(var(--primary) / 0.14), 0 12px 36px -12px hsl(var(--primary) / 0.4)',
       },
       keyframes: {
         'fade-in': {

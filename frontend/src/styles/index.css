@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -15,17 +15,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 231 76% 58%;
+    --primary: 217 90% 23%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 20%;
+    --secondary: 193 86% 48%;
+    --secondary-foreground: 217 90% 15%;
 
-    --muted: 220 14% 96%;
+    --muted: 210 40% 96%;
     --muted-foreground: 220 9% 46%;
 
-    --accent: 262 68% 58%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 194 88% 58%;
+    --accent-foreground: 217 90% 15%;
 
     --success: 152 60% 40%;
     --success-foreground: 0 0% 100%;
@@ -38,34 +38,35 @@
 
     --border: 220 13% 91%;
     --input: 220 13% 88%;
-    --ring: 231 76% 58%;
+    --ring: 193 86% 48%;
 
     --shadow-color: 222 47% 30%;
 
     --radius: 0.75rem;
+    --brand-primary-hover: 213 87% 34%;
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 96%;
+    --background: 219 71% 9%;
+    --foreground: 210 40% 98%;
 
-    --card: 222 40% 11%;
+    --card: 219 58% 15%;
     --card-foreground: 210 40% 96%;
 
-    --popover: 222 40% 11%;
+    --popover: 219 58% 15%;
     --popover-foreground: 210 40% 96%;
 
-    --primary: 231 84% 67%;
-    --primary-foreground: 222 47% 8%;
+    --primary: 193 86% 48%;
+    --primary-foreground: 219 71% 9%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 92%;
+    --secondary: 217 44% 20%;
+    --secondary-foreground: 210 40% 98%;
 
     --muted: 217 33% 16%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 262 72% 68%;
-    --accent-foreground: 222 47% 8%;
+    --accent: 194 88% 58%;
+    --accent-foreground: 219 71% 9%;
 
     --success: 152 55% 48%;
     --success-foreground: 222 47% 8%;
@@ -78,7 +79,7 @@
 
     --border: 217 33% 20%;
     --input: 217 33% 24%;
-    --ring: 231 84% 67%;
+    --ring: 193 86% 48%;
 
     --shadow-color: 222 60% 2%;
   }
@@ -96,6 +97,23 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     min-height: 100vh;
+    background-image: radial-gradient(circle at 85% -10%, hsl(var(--accent) / 0.08), transparent 32rem);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    color: hsl(var(--foreground));
+    letter-spacing: -0.025em;
+  }
+
+  button,
+  [role='button'] {
+    font-family: 'Inter', sans-serif;
   }
 
   /* Visible, consistent focus ring for keyboard users. */
@@ -161,7 +179,7 @@
   .hero-gradient {
     background:
       radial-gradient(60% 60% at 20% 0%, hsl(var(--primary) / 0.16) 0, transparent 60%),
-      radial-gradient(50% 50% at 100% 10%, hsl(var(--accent) / 0.16) 0, transparent 55%);
+      radial-gradient(50% 50% at 100% 10%, hsl(var(--accent) / 0.2) 0, transparent 55%);
   }
 }
 
@@ -170,6 +188,10 @@
     text-wrap: balance;
   }
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #062a6d 0%, #0b4ea2 45%, #11b5e4 100%);
+  }
+  .brand-gradient {
+    background-image: linear-gradient(135deg, #062a6d 0%, #0b4ea2 45%, #11b5e4 100%);
   }
 }

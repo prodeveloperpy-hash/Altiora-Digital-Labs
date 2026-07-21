@@ -31,7 +31,7 @@ export function AdminTopbar({ onMenuClick, onLogout }: AdminTopbarProps) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border bg-card/80 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border bg-white/90 px-4 shadow-sm backdrop-blur-xl dark:bg-[#10203D]/90 sm:px-6">
       <button
         type="button"
         onClick={onMenuClick}

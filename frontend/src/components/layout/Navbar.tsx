@@ -43,10 +43,10 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 w-full border-b transition-colors duration-200',
+        'sticky top-0 z-40 w-full border-b transition-all duration-[250ms]',
         scrolled
-          ? 'border-border bg-background/85 backdrop-blur-lg'
-          : 'border-transparent bg-background',
+          ? 'border-border bg-white/90 shadow-sm backdrop-blur-xl dark:bg-[#10203D]/90'
+          : 'border-transparent bg-white dark:bg-[#071329]',
       )}
     >
       <nav className="container flex h-16 items-center justify-between gap-4" aria-label="Primary">
