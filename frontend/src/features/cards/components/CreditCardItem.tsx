@@ -5,9 +5,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Rating } from '@/components/ui/Rating';
 import { CardArtwork } from './CardArtwork';
 import { CompareToggleButton } from '@/features/compare/components/CompareToggleButton';
-import { CATEGORY_LABELS, CREDIT_SCORE_LABELS } from '@/features/cards/constants';
+import { CATEGORY_LABELS } from '@/features/cards/constants';
 import { ROUTES } from '@/config/constants';
-import { formatAnnualFee, formatAprRange } from '@/lib/utils';
 import type { CreditCard } from '@/features/cards/types';
 
 interface CreditCardItemProps {
@@ -58,29 +57,6 @@ export function CreditCardItem({ card, highlight }: CreditCardItemProps) {
             </Badge>
           ))}
         </div>
-
-        <dl className="grid grid-cols-2 gap-3 rounded-lg bg-secondary/50 p-3 text-sm">
-          <div>
-            <dt className="text-xs text-muted-foreground">Annual fee</dt>
-            <dd className="font-semibold text-foreground">{formatAnnualFee(card.annualFee)}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">Rewards</dt>
-            <dd className="font-semibold text-foreground">{card.rewardsSummary}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">APR</dt>
-            <dd className="font-medium text-foreground">
-              {formatAprRange(card.aprMin, card.aprMax)}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">Recommended credit</dt>
-            <dd className="font-medium text-foreground">
-              {CREDIT_SCORE_LABELS[card.recommendedCreditScore]}
-            </dd>
-          </div>
-        </dl>
 
         <div className="mt-auto flex items-center gap-2 pt-1">
           <Link
