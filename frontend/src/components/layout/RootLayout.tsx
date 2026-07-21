@@ -9,7 +9,7 @@ import { CompareTray } from '@/features/compare/components/CompareTray';
 /** App shell: persistent navigation, routed page content, footer, and overlays. */
 export function RootLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-transparent">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>

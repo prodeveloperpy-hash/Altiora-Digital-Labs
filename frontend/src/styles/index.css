@@ -97,7 +97,6 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     min-height: 100vh;
-    background-image: radial-gradient(circle at 85% -10%, hsl(var(--accent) / 0.08), transparent 32rem);
   }
 
   h1,

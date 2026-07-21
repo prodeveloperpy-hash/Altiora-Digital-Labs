@@ -14,7 +14,7 @@ export function ProtectedRoute() {
 
   if (isInitializing) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-transparent">
         <Spinner size="xl" label="Checking your session" />
       </div>
     );

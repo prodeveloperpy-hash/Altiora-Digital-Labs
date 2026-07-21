@@ -20,7 +20,7 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen bg-transparent text-foreground">
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminTopbar onMenuClick={() => setSidebarOpen(true)} onLogout={handleLogout} />
