@@ -34,38 +34,33 @@ export function CardArtwork({ card, className }: CardArtworkProps) {
       >
         <div className="flip-card-inner">
           <div className="card-face flip-card-front">
-            {hasImage ? (
-              <img className="card-image" src={card.imageUrl} alt={`${card.name} card`} />
-            ) : (
-              <>
-                <div className="card-glow" />
-                <div className="card-topline">
-                  <span className="issuer">{card.issuer}</span>
-                  <span className="network">{NETWORK_LABELS[card.network]}</span>
-                </div>
+            {hasImage && <img className="card-image" src={card.imageUrl} alt="" />}
+            {hasImage && <div className="image-scrim" />}
+            {!hasImage && <div className="card-glow" />}
 
-                <div className="payment-row">
-                  <span className="chip" aria-hidden="true">
-                    <i />
-                    <i />
-                  </span>
-                  <Wifi className="contactless" aria-hidden="true" />
-                </div>
+            <div className="card-topline">
+              <div className="identity-block">
+                <span className="micro-label">BANK / ISSUER</span>
+                <span className="issuer">{card.issuer}</span>
+              </div>
+              <div className="identity-block identity-type">
+                <span className="micro-label">CARD TYPE</span>
+                <span className="network">{NETWORK_LABELS[card.network]}</span>
+              </div>
+            </div>
 
-                <p className="number">1234 1234 1234 1234</p>
+            <div className="payment-row">
+              <span className="chip" aria-hidden="true">
+                <i />
+                <i />
+              </span>
+              <Wifi className="contactless" aria-hidden="true" />
+            </div>
 
-                <div className="card-bottomline">
-                  <div>
-                    <span className="micro-label">CARDHOLDER</span>
-                    <p className="holder">XYZ</p>
-                  </div>
-                  <div className="validity">
-                    <span className="micro-label">VALID THRU</span>
-                    <p>12/34</p>
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="card-name-block">
+              <span className="micro-label">CARD NAME</span>
+              <p className="card-name">{card.name}</p>
+            </div>
           </div>
 
           <div className="card-face flip-card-back">
@@ -165,6 +160,12 @@ const StyledWrapper = styled.div`
     border-radius: inherit;
   }
 
+  .image-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(7, 19, 41, 0.78), rgba(6, 42, 109, 0.3) 55%, rgba(7, 19, 41, 0.68));
+  }
+
   .card-glow {
     position: absolute;
     right: -12%;
@@ -177,7 +178,6 @@ const StyledWrapper = styled.div`
   }
 
   .card-topline,
-  .card-bottomline,
   .payment-row {
     position: relative;
     z-index: 1;
@@ -186,9 +186,22 @@ const StyledWrapper = styled.div`
     justify-content: space-between;
   }
 
+  .identity-block {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .identity-type {
+    align-items: flex-end;
+    text-align: right;
+  }
+
   .issuer,
   .network {
-    max-width: 62%;
+    max-width: 100%;
     overflow: hidden;
     font-size: clamp(0.52rem, 2.7vw, 0.75rem);
     font-weight: 700;
@@ -199,7 +212,7 @@ const StyledWrapper = styled.div`
   }
 
   .network {
-    max-width: 35%;
+    max-width: 100%;
     font-size: clamp(0.48rem, 2.4vw, 0.68rem);
     opacity: 0.9;
   }
@@ -263,20 +276,23 @@ const StyledWrapper = styled.div`
     opacity: 0.9;
   }
 
-  .number {
+  .card-name-block {
     position: relative;
     z-index: 1;
-    margin: 0;
-    font-family: 'Inter', monospace;
-    font-size: clamp(0.72rem, 4.2vw, 1.13rem);
-    font-weight: 600;
-    letter-spacing: 0.12em;
     text-align: left;
-    text-shadow: 0 1px 2px rgba(6, 42, 109, 0.35);
   }
 
-  .card-bottomline {
-    align-items: flex-end;
+  .card-name {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: clamp(0.7rem, 3.8vw, 1.05rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-shadow: 0 1px 3px rgba(7, 19, 41, 0.7);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .micro-label {
@@ -286,18 +302,6 @@ const StyledWrapper = styled.div`
     font-weight: 500;
     letter-spacing: 0.12em;
     opacity: 0.72;
-  }
-
-  .holder,
-  .validity p {
-    margin: 0;
-    font-size: clamp(0.55rem, 2.8vw, 0.75rem);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-  }
-
-  .validity {
-    text-align: right;
   }
 
   .flip-card-back {
