@@ -1,7 +1,7 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { APP_NAME } from '@/config/constants';
+import { ADMIN_ROUTES } from '@/config/constants';
 import { ADMIN_NAV } from './adminNav';
 
 interface AdminSidebarProps {
@@ -31,15 +31,18 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         )}
       >
         <div className="flex h-16 items-center justify-between gap-2 border-b border-border px-5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              {APP_NAME.charAt(0)}
-            </span>
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold text-foreground">{APP_NAME}</span>
-              <span className="text-xs text-muted-foreground">Admin</span>
-            </div>
-          </div>
+          <Link
+            to={ADMIN_ROUTES.dashboard}
+            aria-label="Altiora Digital Labs admin dashboard"
+            className="inline-flex items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <img
+              src="/logo.jpeg"
+              alt="Altiora Digital Labs"
+              className="h-12 w-12 rounded-lg object-contain"
+            />
+            <span className="text-xs font-medium text-muted-foreground">Admin</span>
+          </Link>
           <button
             type="button"
             onClick={onClose}

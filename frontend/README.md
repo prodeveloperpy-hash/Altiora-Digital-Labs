@@ -1,4 +1,4 @@
-# CardWise — Frontend
+# Altiora Digital Labs — Frontend
 
 A modern, banking-quality UI for a database-driven credit card recommendation
 platform. Built with **React 19, TypeScript, Vite, TailwindCSS, React Router,
@@ -28,7 +28,7 @@ Copy `.env.example` to `.env` and adjust as needed:
 | `VITE_API_BASE_URL`  | `/api`                  | Base URL prefixed to every request.            |
 | `VITE_DEV_API_PROXY` | `http://localhost:8000` | Dev-only target the `/api` proxy forwards to.  |
 | `VITE_API_TIMEOUT`   | `15000`                 | Axios request timeout (ms).                    |
-| `VITE_APP_NAME`      | `CardWise`              | App display name.                              |
+| `VITE_APP_NAME`      | `Altiora Digital Labs`  | App display name.                              |
 
 During development, requests to `/api/*` are proxied to `VITE_DEV_API_PROXY`, so
 no CORS configuration is required.

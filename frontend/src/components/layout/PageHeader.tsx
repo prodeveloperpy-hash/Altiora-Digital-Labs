@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@/config/constants';
 import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
@@ -19,6 +21,17 @@ export function PageHeader({ title, description, eyebrow, actions, className }: 
       )}
     >
       <div className="space-y-2">
+        <Link
+          to={ROUTES.home}
+          aria-label="Altiora Digital Labs home"
+          className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <img
+            src="/logo.jpeg"
+            alt="Altiora Digital Labs"
+            className="h-auto w-28 rounded-lg object-contain sm:w-32"
+          />
+        </Link>
         {eyebrow && (
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
         )}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { GitCompareArrows, Menu, X } from 'lucide-react';
-import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 import { ROUTES } from '@/config/constants';
 import { useCompare } from '@/features/compare/context/useCompare';
@@ -51,7 +50,17 @@ export function Navbar() {
       )}
     >
       <nav className="container flex h-16 items-center justify-between gap-4" aria-label="Primary">
-        <Logo />
+        <Link
+          to={ROUTES.home}
+          aria-label="Altiora Digital Labs home"
+          className="inline-flex shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <img
+            src="/logo.jpeg"
+            alt="Altiora Digital Labs"
+            className="h-12 w-12 rounded-lg object-contain sm:h-14 sm:w-14"
+          />
+        </Link>
 
         <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Lock, LogIn, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, LogIn, User } from 'lucide-react';
 import { ADMIN_ROUTES, APP_NAME } from '@/config/constants';
 import { useAdminAuth } from '@/features/admin/auth/useAdminAuth';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -23,6 +23,7 @@ export default function LoginPage() {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,9 +52,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
-            {APP_NAME.charAt(0)}
-          </span>
+          <img
+            src="/logo.jpeg"
+            alt="Altiora Digital Labs"
+            className="mx-auto mb-4 h-auto w-32 rounded-xl object-contain sm:w-36"
+          />
           <h1 className="text-2xl font-bold text-foreground">{APP_NAME} Admin</h1>
           <p className="mt-1 text-sm text-muted-foreground">Sign in to manage the platform.</p>
         </div>
@@ -89,12 +92,27 @@ export default function LoginPage() {
             {(field) => (
               <Input
                 {...field}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
                 startAdornment={<Lock className="h-4 w-4" />}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </button>
+                }
                 placeholder="••••••••"
               />
             )}

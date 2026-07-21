@@ -20,7 +20,7 @@ export const env = {
   /** Axios request timeout in milliseconds. */
   apiTimeout: readNumber(import.meta.env.VITE_API_TIMEOUT, 15000),
   /** Human-readable application name. */
-  appName: readString(import.meta.env.VITE_APP_NAME, 'CardWise'),
+  appName: readString(import.meta.env.VITE_APP_NAME, 'Altiora Digital Labs'),
   /** True when running the Vite dev server. */
   isDev: import.meta.env.DEV,
   /** True in production builds. */

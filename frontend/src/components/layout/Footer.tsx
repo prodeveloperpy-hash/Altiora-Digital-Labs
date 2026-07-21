@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Logo } from './Logo';
 import { ROUTES, APP_NAME } from '@/config/constants';
 
 const FOOTER_SECTIONS = [
@@ -27,7 +26,18 @@ export function Footer() {
     <footer className="border-t border-border bg-card/40">
       <div className="container grid gap-10 py-12 md:grid-cols-[1.5fr_1fr_1fr]">
         <div className="space-y-4">
-          <Logo />
+          <Link
+            to={ROUTES.home}
+            aria-label="Altiora Digital Labs home"
+            className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <img
+              src="/logo.jpeg"
+              alt="Altiora Digital Labs"
+              loading="lazy"
+              className="h-auto w-36 rounded-lg object-contain sm:w-40"
+            />
+          </Link>
           <p className="max-w-xs text-sm text-muted-foreground">
             Personalized, unbiased credit card recommendations powered by transparent,
             rules-based matching — never paid placement.
