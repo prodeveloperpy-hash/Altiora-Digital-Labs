@@ -19,6 +19,9 @@ htmlcov/
 *.db
 *.sqlite3
 
+# Admin image uploads (created at runtime)
+uploads/
+
 # Environment
 .env
 

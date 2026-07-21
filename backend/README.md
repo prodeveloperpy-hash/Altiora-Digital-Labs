@@ -68,6 +68,34 @@ sensible default.
 | `AUTO_CREATE_TABLES`         | `true`                                | Create missing tables on startup.            |
 | `AUTO_SEED`                  | `true`                                | Seed reference data when the DB is empty.    |
 | `LOG_LEVEL`                  | `INFO`                                | Logging level.                               |
+| `CARDWISE_JWT_SECRET`        | dev placeholder                       | **Set in every deployment.** Signs admin JWTs. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES`| `30`                                  | Admin access-token lifetime.                 |
+| `REFRESH_TOKEN_EXPIRE_DAYS`  | `2`                                   | Refresh-token lifetime for a normal session. |
+| `REFRESH_TOKEN_REMEMBER_DAYS`| `30`                                  | Refresh-token lifetime with "remember me".   |
+| `CARDWISE_DEFAULT_ADMIN_PASSWORD` | `ChangeMe!2024`                  | Password for the seeded default admin.       |
+| `UPLOAD_DIR`                 | `uploads`                             | Directory for admin image uploads.           |
+| `UPLOAD_MAX_BYTES`           | `5242880`                             | Max upload size (5 MB).                       |
+
+---
+
+## Admin panel
+
+A JWT-protected admin API lives under `/api/admin` and powers the React admin
+dashboard. All content — cards, banks, questions, categories, and **the
+recommendation rules the engine loads at request time** — is editable here, so
+changing recommendation behavior is a database update, never a code change.
+
+- **Auth:** `POST /api/admin/auth/login` returns an access token + a rotating
+  refresh token (persisted by `jti` so logout truly revokes the session).
+  `refresh`, `logout`, and `me` complete the flow. Role-based authorization
+  (`super_admin` > `admin` > `editor`) guards destructive actions.
+- **Default administrator** (seeded idempotently on first run):
+  username `admin`, password `ChangeMe!2024` (override with
+  `CARDWISE_DEFAULT_ADMIN_PASSWORD`). **Change it immediately in any real
+  deployment**, and always set `CARDWISE_JWT_SECRET`.
+- **Resources:** `dashboard`, `cards` (+ `publish`/`unpublish`), `banks`,
+  `questions` (+ `reorder`), `categories`, `recommendation-rules` (+ `catalog`),
+  `settings`, and `uploads` (multipart image upload, served under `/uploads`).
 
 ---
 

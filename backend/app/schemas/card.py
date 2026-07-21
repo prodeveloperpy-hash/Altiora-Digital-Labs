@@ -50,11 +50,21 @@ class CardRead(ResponseModel):
     updated_at: datetime
 
 
+class AdminCardRead(CardRead):
+    """Card view for the admin panel — adds status flags and bank linkage."""
+
+    is_featured: bool
+    is_active: bool
+    bank_id: str | None = None
+    created_at: datetime
+
+
 class CardCreate(RequestModel):
     slug: str = Field(min_length=1, max_length=160)
     name: str = Field(min_length=1, max_length=160)
     issuer: str = Field(min_length=1, max_length=120)
     network: CardNetwork
+    bank_id: str | None = Field(default=None, max_length=64)
     categories: list[str] = Field(default_factory=list)
     image_url: str = Field(default="", max_length=512)
     summary: str = Field(default="", max_length=400)
@@ -88,6 +98,7 @@ class CardUpdate(RequestModel):
     name: str | None = Field(default=None, min_length=1, max_length=160)
     issuer: str | None = Field(default=None, min_length=1, max_length=120)
     network: CardNetwork | None = None
+    bank_id: str | None = Field(default=None, max_length=64)
     categories: list[str] | None = None
     image_url: str | None = Field(default=None, max_length=512)
     summary: str | None = Field(default=None, max_length=400)

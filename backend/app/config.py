@@ -28,9 +28,40 @@ class Settings(BaseSettings):
 
     # --- API -------------------------------------------------------------
     api_prefix: str = "/api"
-    # Optional key protecting administrative mutation endpoints. Set this in
-    # every deployed environment; reads remain public.
+    # Optional key protecting the legacy administrative mutation endpoints on the
+    # public resource routers. Set this in every deployed environment; reads
+    # remain public. The Admin Panel uses JWT auth (below) instead.
     admin_api_key: str | None = None
+
+    # --- Admin authentication (JWT) -------------------------------------
+    # Secret used to sign admin access/refresh tokens. MUST be overridden in
+    # every deployed environment via the CARDWISE_JWT_SECRET env var.
+    jwt_secret_key: str = Field(
+        default="dev-insecure-change-me-please-set-CARDWISE_JWT_SECRET",
+        validation_alias="CARDWISE_JWT_SECRET",
+    )
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    # Refresh-token lifetime for a normal session and a "remember me" session.
+    refresh_token_expire_days: int = 2
+    refresh_token_remember_days: int = 30
+
+    # Default administrator provisioned on first run (idempotent). Change the
+    # password immediately after first login in any real deployment.
+    default_admin_email: str = "admin@cardwise.local"
+    default_admin_username: str = "admin"
+    default_admin_password: str = Field(
+        default="ChangeMe!2024",
+        validation_alias="CARDWISE_DEFAULT_ADMIN_PASSWORD",
+    )
+    default_admin_full_name: str = "CardWise Administrator"
+
+    # --- Uploads ---------------------------------------------------------
+    # Directory (relative to the backend working dir) where uploaded images are
+    # stored, and the public URL prefix they are served under.
+    upload_dir: str = "uploads"
+    upload_url_prefix: str = "/uploads"
+    upload_max_bytes: int = 5 * 1024 * 1024  # 5 MB
 
     # --- Database --------------------------------------------------------
     # Default to a file-based SQLite database in the working directory.

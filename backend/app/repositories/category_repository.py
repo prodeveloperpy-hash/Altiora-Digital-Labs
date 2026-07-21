@@ -36,3 +36,7 @@ class CategoryRepository:
         self.db.add(category)
         self.db.flush()
         return category
+
+    def delete(self, category: Category) -> None:
+        self.db.delete(category)
+        self.db.flush()

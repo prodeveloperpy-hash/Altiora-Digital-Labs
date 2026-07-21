@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
 from app.config import settings
@@ -34,11 +36,17 @@ async def lifespan(_app: FastAPI):
         logger.info("Ensured database schema exists")
 
     if settings.auto_seed:
-        from app.database.seed import seed_if_empty
+        from app.database.seed import ensure_admin_seed, seed_if_empty
 
         seeded = seed_if_empty()
         if seeded:
             logger.info("Seeded reference data")
+
+        # Provision the default administrator, settings, and starter
+        # questionnaire. Idempotent and independent of reference-data seeding so
+        # existing databases gain the admin module without a reset.
+        if ensure_admin_seed():
+            logger.info("Provisioned admin module data (admin user / settings / questions)")
 
     yield
     logger.info("Shutting down %s", settings.app_name)
@@ -75,7 +83,13 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Accept", "Content-Type", "X-API-Key", "X-Request-ID"],
+        allow_headers=[
+            "Accept",
+            "Authorization",
+            "Content-Type",
+            "X-API-Key",
+            "X-Request-ID",
+        ],
         expose_headers=["X-Request-ID", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
     )
 
@@ -85,6 +99,15 @@ def create_app() -> FastAPI:
     # --- Routes ----------------------------------------------------------
     # API routes live under the configured prefix (default "/api").
     app.include_router(api_router, prefix=settings.api_prefix)
+
+    # Serve uploaded admin assets (card art, bank logos) as static files.
+    upload_path = Path(settings.upload_dir)
+    upload_path.mkdir(parents=True, exist_ok=True)
+    app.mount(
+        settings.upload_url_prefix,
+        StaticFiles(directory=str(upload_path)),
+        name="uploads",
+    )
 
     @app.middleware("http")
     async def security_headers(request, call_next):  # noqa: ANN001

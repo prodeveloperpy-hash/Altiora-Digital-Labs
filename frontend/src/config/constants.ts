@@ -19,6 +19,10 @@ export const STORAGE_KEYS = {
   theme: 'cardwise-theme',
   compare: 'cardwise-compare',
   questionnaire: 'cardwise-questionnaire-answers',
+  adminAccessToken: 'cardwise-admin-access-token',
+  adminRefreshToken: 'cardwise-admin-refresh-token',
+  adminUser: 'cardwise-admin-user',
+  adminRemember: 'cardwise-admin-remember',
 } as const;
 
 /** Centralized route paths — the single source of truth for navigation. */
@@ -33,4 +37,27 @@ export const ROUTES = {
   about: '/about',
   faq: '/faq',
   notFound: '*',
+} as const;
+
+/** Admin panel route paths — the single source of truth for admin navigation. */
+export const ADMIN_ROUTES = {
+  root: '/admin',
+  login: '/admin/login',
+  dashboard: '/admin/dashboard',
+  cards: '/admin/cards',
+  cardNew: '/admin/cards/new',
+  cardEdit: (id: string = ':id') => `/admin/cards/${id}/edit`,
+  banks: '/admin/banks',
+  bankNew: '/admin/banks/new',
+  bankEdit: (id: string = ':id') => `/admin/banks/${id}/edit`,
+  questions: '/admin/questions',
+  questionNew: '/admin/questions/new',
+  questionEdit: (id: string = ':id') => `/admin/questions/${id}/edit`,
+  categories: '/admin/categories',
+  categoryNew: '/admin/categories/new',
+  categoryEdit: (id: string = ':id') => `/admin/categories/${id}/edit`,
+  rules: '/admin/recommendation-rules',
+  ruleNew: '/admin/recommendation-rules/new',
+  ruleEdit: (id: string = ':id') => `/admin/recommendation-rules/${id}/edit`,
+  settings: '/admin/settings',
 } as const;

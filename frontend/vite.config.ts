@@ -21,6 +21,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // Admin image uploads are served by the backend under /uploads.
+      '/uploads': {
+        target: process.env.VITE_DEV_API_PROXY ?? 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {

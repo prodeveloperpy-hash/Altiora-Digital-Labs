@@ -16,17 +16,22 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import settings
+from app.core.security import hash_password
 from app.database.session import SessionLocal
+from app.models.admin_user import AdminUser
 from app.models.bank import Bank
 from app.models.benefit import Benefit
 from app.models.card import CreditCard
 from app.models.category import Category
 from app.models.eligibility_rule import EligibilityRule
 from app.models.faq import Faq
+from app.models.question import Question, QuestionOption
 from app.models.reward_category import RewardCategory
 from app.models.reward_rate import RewardRate
 from app.models.rule import CreditScoreTier, RecommendationRule
 from app.models.scoring import QuestionMapping, ScoringMatrixEntry, ScoringWeight
+from app.models.setting import Setting
 
 logger = logging.getLogger("cardwise.seed")
 
@@ -429,6 +434,172 @@ FAQS: list[dict[str, object]] = [
 
 # --- Seeding logic --------------------------------------------------------
 
+# --- Admin module data ----------------------------------------------------
+
+DEFAULT_SETTINGS: list[dict[str, object]] = [
+    {"key": "appName", "value": "CardWise", "label": "Application name",
+     "description": "Display name shown across the storefront and admin panel.",
+     "value_type": "text"},
+    {"key": "theme", "value": "system", "label": "Default theme",
+     "description": "Default color theme: light, dark, or system.", "value_type": "select"},
+    {"key": "recommendationScoreThreshold", "value": 0, "label": "Recommendation score threshold",
+     "description": "Minimum normalized score (0–100) a card must reach to be recommended.",
+     "value_type": "number"},
+    {"key": "defaultRankingWeights", "value": {"goal": 3.0, "eligibility": 2.0, "spending": 2.0,
+                                               "budget": 1.5, "rating": 1.0},
+     "label": "Default ranking weights",
+     "description": "Baseline multipliers applied when ranking recommendations.",
+     "value_type": "json"},
+]
+
+# Starter questionnaire whose keys align with the engine's answer fields.
+STARTER_QUESTIONS: list[dict[str, object]] = [
+    {
+        "key": "primaryGoal", "label": "What is your primary goal?",
+        "help_text": "We tailor recommendations to what matters most to you.",
+        "type": "radio", "is_required": True, "config": {},
+        "options": [
+            {"label": "Earn cash back", "value": "cashback", "weight": 1.0,
+             "mapped_categories": ["cashback"]},
+            {"label": "Travel rewards", "value": "travel", "weight": 1.0,
+             "mapped_categories": ["travel"]},
+            {"label": "Flexible rewards", "value": "rewards", "weight": 1.0,
+             "mapped_categories": ["rewards"]},
+            {"label": "Transfer a balance", "value": "balance-transfer", "weight": 1.0,
+             "mapped_categories": ["balance-transfer"]},
+            {"label": "Build credit", "value": "student", "weight": 1.0,
+             "mapped_categories": ["student", "secured"]},
+        ],
+    },
+    {
+        "key": "spendingCategories", "label": "Where do you spend the most?",
+        "help_text": "Select all that apply.", "type": "checkbox", "is_required": False,
+        "config": {},
+        "options": [
+            {"label": "Dining", "value": "dining", "weight": 1.0},
+            {"label": "Groceries", "value": "groceries", "weight": 1.0},
+            {"label": "Travel", "value": "travel", "weight": 1.0},
+            {"label": "Gas", "value": "gas", "weight": 1.0},
+            {"label": "Streaming", "value": "streaming", "weight": 1.0},
+        ],
+    },
+    {
+        "key": "creditScore", "label": "How would you describe your credit?",
+        "help_text": "", "type": "dropdown", "is_required": True, "config": {},
+        "options": [
+            {"label": "Excellent (720+)", "value": "excellent", "weight": 1.0},
+            {"label": "Good (690–719)", "value": "good", "weight": 1.0},
+            {"label": "Fair (630–689)", "value": "fair", "weight": 1.0},
+            {"label": "Poor (below 630)", "value": "poor", "weight": 1.0},
+            {"label": "Building credit", "value": "building", "weight": 1.0},
+        ],
+    },
+    {
+        "key": "maxAnnualFee", "label": "Maximum annual fee you'll pay?",
+        "help_text": "Drag to set your budget.", "type": "slider", "is_required": False,
+        "config": {"min": 0, "max": 700, "step": 5, "unit": "$"},
+        "options": [],
+    },
+    {
+        "key": "travelsInternationally", "label": "Do you travel internationally?",
+        "help_text": "", "type": "radio", "is_required": False, "config": {},
+        "options": [
+            {"label": "Yes", "value": "true", "weight": 1.0},
+            {"label": "No", "value": "false", "weight": 0.0},
+        ],
+    },
+    {
+        "key": "rewardPreference", "label": "Preferred rewards format?",
+        "help_text": "", "type": "radio", "is_required": False, "config": {},
+        "options": [
+            {"label": "Cash back", "value": "cashback", "weight": 1.0},
+            {"label": "Points", "value": "points", "weight": 1.0},
+            {"label": "Miles", "value": "miles", "weight": 1.0},
+        ],
+    },
+]
+
+
+def seed_admin_user(db: Session) -> bool:
+    """Create the default administrator if no admin users exist."""
+    if db.execute(select(AdminUser.id).limit(1)).first():
+        return False
+    db.add(
+        AdminUser(
+            email=settings.default_admin_email,
+            username=settings.default_admin_username,
+            hashed_password=hash_password(settings.default_admin_password),
+            full_name=settings.default_admin_full_name,
+            role="super_admin",
+            is_active=True,
+        )
+    )
+    return True
+
+
+def seed_settings(db: Session) -> bool:
+    """Insert any missing default settings (idempotent per key)."""
+    existing = set(db.execute(select(Setting.key)).scalars().all())
+    added = False
+    for spec in DEFAULT_SETTINGS:
+        if spec["key"] not in existing:
+            db.add(Setting(**spec))
+            added = True
+    return added
+
+
+def seed_questions(db: Session) -> bool:
+    """Insert the starter questionnaire if no questions exist yet."""
+    if db.execute(select(Question.id).limit(1)).first():
+        return False
+    for position, spec in enumerate(STARTER_QUESTIONS, start=1):
+        options = spec.get("options", [])
+        question = Question(
+            key=spec["key"],
+            label=spec["label"],
+            help_text=spec["help_text"],
+            type=spec["type"],
+            is_required=bool(spec.get("is_required", False)),
+            is_active=True,
+            position=position,
+            config=spec.get("config", {}),
+        )
+        question.options = [
+            QuestionOption(
+                label=opt["label"],
+                value=opt["value"],
+                weight=float(opt.get("weight", 0.0)),
+                position=index,
+                mapped_categories=opt.get("mapped_categories", []),
+                mapped_rules=opt.get("mapped_rules", []),
+                mapped_card_conditions=opt.get("mapped_card_conditions", []),
+            )
+            for index, opt in enumerate(options)
+        ]
+        db.add(question)
+    return True
+
+
+def ensure_admin_seed() -> bool:
+    """Idempotently provision admin user, settings, and starter questions.
+
+    Runs on every startup and only inserts what is missing, so existing
+    databases gain the admin module without a reset. Returns True if anything
+    was inserted.
+    """
+    db = SessionLocal()
+    try:
+        changed = False
+        changed |= seed_admin_user(db)
+        changed |= seed_settings(db)
+        changed |= seed_questions(db)
+        if changed:
+            db.commit()
+        return changed
+    finally:
+        db.close()
+
+
 def seed(db: Session) -> None:
     """Insert all reference data. Assumes an empty database."""
     db.add_all([CreditScoreTier(**tier) for tier in CREDIT_TIERS])
@@ -474,6 +645,12 @@ def seed(db: Session) -> None:
         ]
         db.add(card)
 
+    # Flush parents (scoring weights, cards) before inserting rows whose
+    # foreign keys reference them by plain column (weight_key, card_id). These
+    # links carry no ORM relationship, so the unit-of-work cannot infer the
+    # insert order on its own — a flush makes seeding safe with FKs enforced.
+    db.flush()
+
     db.add_all([Faq(**faq) for faq in FAQS])
     db.add_all([RecommendationRule(**rule) for rule in RULES])
     db.add_all([ScoringMatrixEntry(**entry) for entry in MATRIX])
@@ -502,7 +679,10 @@ def main() -> None:  # pragma: no cover - CLI entrypoint
     configure_logging()
     Base.metadata.create_all(bind=engine)
     seeded = seed_if_empty()
+    admin_seeded = ensure_admin_seed()
     logger.info("Database seeded." if seeded else "Database already populated; nothing to seed.")
+    if admin_seeded:
+        logger.info("Admin module data provisioned.")
 
 
 if __name__ == "__main__":  # pragma: no cover

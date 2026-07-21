@@ -20,3 +20,10 @@ class CategoryCreate(RequestModel):
     slug: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=128)
     description: str = Field(default="", max_length=1000)
+
+
+class CategoryUpdate(RequestModel):
+    """Partial update — all fields optional. The slug is the immutable id."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=128)
+    description: str | None = Field(default=None, max_length=1000)

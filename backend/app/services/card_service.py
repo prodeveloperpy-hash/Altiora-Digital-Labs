@@ -11,7 +11,7 @@ from app.exceptions import ConflictError, NotFoundError, ValidationError
 from app.models.card import CreditCard
 from app.models.reward_rate import RewardRate
 from app.repositories.card_repository import CardQuery, CardRepository
-from app.schemas.card import CardCreate, CardRead, CardUpdate
+from app.schemas.card import AdminCardRead, CardCreate, CardRead, CardUpdate
 from app.schemas.common import PaginatedResponse
 
 
@@ -31,6 +31,43 @@ class CardService:
             total_pages=total_pages,
         )
 
+    def admin_list_cards(self, query: CardQuery) -> PaginatedResponse[AdminCardRead]:
+        """List cards for the admin panel, including inactive (unpublished) ones."""
+        query.include_inactive = True
+        items, total = self.repo.list(query)
+        total_pages = math.ceil(total / query.page_size) if query.page_size else 0
+        return PaginatedResponse[AdminCardRead](
+            items=[AdminCardRead.model_validate(card) for card in items],
+            page=query.page,
+            page_size=query.page_size,
+            total=total,
+            total_pages=total_pages,
+        )
+
+    def admin_get_card(self, identifier: str) -> AdminCardRead:
+        card = self.repo.get_by_id_or_slug(identifier)
+        if card is None:
+            raise NotFoundError(f"Card '{identifier}' was not found.")
+        return AdminCardRead.model_validate(card)
+
+    def admin_create_card(self, payload: CardCreate) -> AdminCardRead:
+        created = self.create_card(payload)
+        return self.admin_get_card(created.id)
+
+    def admin_update_card(self, identifier: str, payload: CardUpdate) -> AdminCardRead:
+        updated = self.update_card(identifier, payload)
+        # Re-fetch by the stable id in case the slug was part of this update.
+        return self.admin_get_card(updated.id)
+
+    def set_active(self, identifier: str, is_active: bool) -> AdminCardRead:
+        card = self.repo.get_by_id_or_slug(identifier)
+        if card is None:
+            raise NotFoundError(f"Card '{identifier}' was not found.")
+        card.is_active = is_active
+        self.db.commit()
+        self.db.refresh(card)
+        return AdminCardRead.model_validate(card)
+
     def get_card(self, identifier: str) -> CardRead:
         card = self.repo.get_by_id_or_slug(identifier)
         if card is None:
@@ -49,6 +86,7 @@ class CardService:
             name=payload.name,
             issuer=payload.issuer,
             network=payload.network,
+            bank_id=payload.bank_id,
             image_url=payload.image_url,
             summary=payload.summary,
             description=payload.description,

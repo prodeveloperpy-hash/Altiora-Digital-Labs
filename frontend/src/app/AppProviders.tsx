@@ -5,6 +5,7 @@ import { createQueryClient } from './queryClient';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { ToastProvider } from '@/context/toast/ToastProvider';
 import { CompareProvider } from '@/features/compare/context/CompareProvider';
+import { AdminAuthProvider } from '@/features/admin/auth/AdminAuthProvider';
 import { env } from '@/config/env';
 
 /**
@@ -20,7 +21,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <CompareProvider>{children}</CompareProvider>
+          <AdminAuthProvider>
+            <CompareProvider>{children}</CompareProvider>
+          </AdminAuthProvider>
         </ToastProvider>
         {env.isDev && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />}
       </QueryClientProvider>

@@ -5,6 +5,7 @@ import axios, {
 } from 'axios';
 import { env } from '@/config/env';
 import { normalizeError } from './apiError';
+import { tokenStore } from '@/features/admin/auth/tokenStore';
 
 /**
  * Shared Axios instance. All feature API modules import this rather than axios
@@ -20,15 +21,72 @@ const instance: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor — a natural seam for auth tokens, correlation IDs, etc.
+// A bare instance used only to refresh tokens, so it never re-enters the
+// interceptor chain below (which would recurse on a failed refresh).
+const refreshInstance: AxiosInstance = axios.create({
+  baseURL: env.apiBaseUrl,
+  timeout: env.apiTimeout,
+  headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+});
+
+// Request interceptor — attach the admin bearer token when present.
 instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = tokenStore.getAccessToken();
+  if (token) {
+    config.headers.set('Authorization', `Bearer ${token}`);
+  }
   return config;
 });
 
-// Response interceptor — unwrap the payload and normalize every error.
+interface RetriableConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+// De-duplicate concurrent refreshes: the first 401 kicks off a refresh, and any
+// other 401s that arrive meanwhile await the same in-flight promise.
+let refreshPromise: Promise<string> | null = null;
+
+async function performRefresh(): Promise<string> {
+  const refreshToken = tokenStore.getRefreshToken();
+  if (!refreshToken) throw new Error('No refresh token');
+  const { data } = await refreshInstance.post<{ accessToken: string; refreshToken: string }>(
+    '/admin/auth/refresh',
+    { refreshToken },
+  );
+  tokenStore.updateTokens(data.accessToken, data.refreshToken);
+  return data.accessToken;
+}
+
+function shouldAttemptRefresh(config: RetriableConfig | undefined): boolean {
+  if (!config || config._retry) return false;
+  const url = config.url ?? '';
+  // Only admin requests carry a session; never try to refresh the auth calls.
+  if (!url.includes('/admin/')) return false;
+  if (url.includes('/admin/auth/')) return false;
+  return Boolean(tokenStore.getRefreshToken());
+}
+
+// Response interceptor — transparently refresh once on 401, else normalize.
 instance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(normalizeError(error)),
+  async (error) => {
+    const config = error.config as RetriableConfig | undefined;
+    if (error.response?.status === 401 && shouldAttemptRefresh(config)) {
+      try {
+        refreshPromise = refreshPromise ?? performRefresh();
+        const newToken = await refreshPromise;
+        refreshPromise = null;
+        config!._retry = true;
+        config!.headers.set('Authorization', `Bearer ${newToken}`);
+        return instance.request(config!);
+      } catch (refreshError) {
+        refreshPromise = null;
+        tokenStore.clear();
+        return Promise.reject(normalizeError(refreshError));
+      }
+    }
+    return Promise.reject(normalizeError(error));
+  },
 );
 
 /**

@@ -5,10 +5,10 @@ from __future__ import annotations
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.exceptions import ConflictError
+from app.exceptions import ConflictError, NotFoundError
 from app.models.category import Category
 from app.repositories.category_repository import CategoryRepository
-from app.schemas.category import CategoryCreate, CategoryRead
+from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
 
 
 class CategoryService:
@@ -52,3 +52,29 @@ class CategoryService:
             description=category.description,
             card_count=0,
         )
+
+    def update_category(self, slug: str, payload: CategoryUpdate) -> CategoryRead:
+        category = self.repo.get_by_slug(slug)
+        if category is None:
+            raise NotFoundError(f"Category '{slug}' was not found.")
+        data = payload.model_dump(exclude_unset=True)
+        for field, value in data.items():
+            setattr(category, field, value)
+        self.db.commit()
+        self.db.refresh(category)
+        counts = self.repo.active_card_counts()
+        return CategoryRead(
+            id=category.id,
+            slug=category.slug,
+            name=category.name,
+            description=category.description,
+            card_count=counts.get(category.id, 0),
+        )
+
+    def delete_category(self, slug: str) -> None:
+        category = self.repo.get_by_slug(slug)
+        if category is None:
+            raise NotFoundError(f"Category '{slug}' was not found.")
+        # The card_category association rows are removed via ON DELETE CASCADE.
+        self.repo.delete(category)
+        self.db.commit()
