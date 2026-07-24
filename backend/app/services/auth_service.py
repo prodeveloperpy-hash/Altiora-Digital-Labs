@@ -17,13 +17,14 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    hash_password,
     verify_password,
 )
-from app.exceptions import AppError
+from app.exceptions import AppError, ConflictError, NotFoundError, ValidationError
 from app.models.admin_user import AdminUser
 from app.models.refresh_token import RefreshToken
 from app.repositories.admin_user_repository import AdminUserRepository
-from app.schemas.auth import AdminUserRead, LoginResponse
+from app.schemas.auth import AdminAccountCreate, AdminProfileUpdate, AdminUserRead, LoginResponse
 
 
 def _unauthorized(message: str = "Invalid credentials.") -> AppError:
@@ -96,6 +97,84 @@ class AuthService:
         if user is None or not user.is_active:
             return None
         return user
+
+    def update_profile(self, user: AdminUser, payload: AdminProfileUpdate) -> AdminUserRead:
+        if not verify_password(payload.current_password, user.hashed_password):
+            raise ValidationError(
+                "The current password is incorrect.",
+                errors={"currentPassword": "Current password is incorrect."},
+            )
+        if payload.email is not None and payload.email != user.email:
+            existing = self.repo.get_by_email(payload.email)
+            if existing is not None and existing.id != user.id:
+                raise ConflictError(
+                    "That email address is already in use.",
+                    errors={"email": "Email address is already in use."},
+                )
+            user.email = payload.email
+        if payload.new_password is not None:
+            if verify_password(payload.new_password, user.hashed_password):
+                raise ValidationError(
+                    "Choose a different password.",
+                    errors={"newPassword": "New password must differ from the current password."},
+                )
+            user.hashed_password = hash_password(payload.new_password)
+            self.repo.revoke_all_for_user(user.id)
+        self.db.commit()
+        self.db.refresh(user)
+        return AdminUserRead.model_validate(user)
+
+    def list_admins(self) -> list[AdminUserRead]:
+        return [AdminUserRead.model_validate(user) for user in self.repo.list_all()]
+
+    def create_admin(self, payload: AdminAccountCreate) -> AdminUserRead:
+        if self.repo.get_by_email(payload.email) is not None:
+            raise ConflictError(
+                "That email address is already in use.",
+                errors={"email": "Email address is already in use."},
+            )
+        base = payload.email.split("@", 1)[0].lower()
+        base = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in base)
+        base = (base.strip(".-_") or "admin")[:54]
+        username = base
+        suffix = 2
+        while self.repo.username_exists(username):
+            username = f"{base}-{suffix}"
+            suffix += 1
+        user = self.repo.add(
+            AdminUser(
+                email=payload.email,
+                username=username,
+                hashed_password=hash_password(payload.password),
+                full_name="",
+                role="admin",
+                is_active=True,
+            )
+        )
+        self.db.commit()
+        self.db.refresh(user)
+        return AdminUserRead.model_validate(user)
+
+    def update_admin_password(self, user_id: str, password: str) -> AdminUserRead:
+        user = self.repo.get(user_id)
+        if user is None:
+            raise NotFoundError("Administrator not found.")
+        user.hashed_password = hash_password(password)
+        self.repo.revoke_all_for_user(user.id)
+        self.db.commit()
+        self.db.refresh(user)
+        return AdminUserRead.model_validate(user)
+
+    def delete_admin(self, user_id: str, *, actor_id: str) -> None:
+        user = self.repo.get(user_id)
+        if user is None:
+            raise NotFoundError("Administrator not found.")
+        if self.repo.count() <= 1:
+            raise ValidationError("The last administrator account cannot be deleted.")
+        if user.id == actor_id:
+            raise ValidationError("You cannot delete your own administrator account.")
+        self.repo.delete(user)
+        self.db.commit()
 
     # --- Helpers ---------------------------------------------------------
     def _issue_pair(self, user: AdminUser, *, remember: bool) -> tuple[str, str]:

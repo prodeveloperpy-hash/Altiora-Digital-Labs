@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, Field
+from pydantic import AfterValidator, Field, model_validator
 
 from app.models.admin_user import ADMIN_ROLES
 from app.schemas.common import RequestModel, ResponseModel
@@ -78,6 +78,27 @@ class AdminUserUpdate(RequestModel):
     full_name: str | None = Field(default=None, max_length=120)
     role: AdminRole | None = None
     is_active: bool | None = None
+
+
+class AdminProfileUpdate(RequestModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    email: EmailStr | None = None
+    new_password: str | None = Field(default=None, min_length=8, max_length=128)
+
+    @model_validator(mode="after")
+    def require_change(self) -> AdminProfileUpdate:
+        if self.email is None and self.new_password is None:
+            raise ValueError("Provide an email or a new password.")
+        return self
+
+
+class AdminAccountCreate(RequestModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
+
+class AdminPasswordUpdate(RequestModel):
+    password: str = Field(min_length=8, max_length=128)
 
 
 class LoginResponse(ResponseModel):

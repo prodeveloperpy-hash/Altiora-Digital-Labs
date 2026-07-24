@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { authApi } from '@/features/admin/api/adminApi';
-import type { AdminRole, AdminUser } from '@/features/admin/types';
+import type { AdminProfileUpdatePayload, AdminRole, AdminUser } from '@/features/admin/types';
 import { AdminAuthContext, ROLE_ORDER } from './AdminAuthContext';
 import { tokenStore } from './tokenStore';
 
@@ -75,6 +75,13 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updateProfile = useCallback(async (payload: AdminProfileUpdatePayload) => {
+    const updatedUser = await authApi.updateProfile(payload);
+    tokenStore.updateUser(updatedUser);
+    setUser(updatedUser);
+    return updatedUser;
+  }, []);
+
   const hasRole = useCallback(
     (minimum: AdminRole) => {
       if (!user) return false;
@@ -92,9 +99,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       isInitializing,
       login,
       logout,
+      updateProfile,
       hasRole,
     }),
-    [user, isInitializing, login, logout, hasRole],
+    [user, isInitializing, login, logout, updateProfile, hasRole],
   );
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;

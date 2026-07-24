@@ -106,6 +106,13 @@ export const tokenStore = {
     this.notify();
   },
 
+  updateUser(user: AdminUser): void {
+    const store = activeStore();
+    if (!store) return;
+    store.setItem(STORAGE_KEYS.adminUser, JSON.stringify(user));
+    this.notify();
+  },
+
   clear(): void {
     clearBoth();
     this.notify();

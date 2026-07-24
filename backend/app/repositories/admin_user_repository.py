@@ -33,10 +33,26 @@ class AdminUserRepository:
     def count(self) -> int:
         return int(self.db.execute(select(func.count(AdminUser.id))).scalar_one())
 
+    def list_all(self) -> list[AdminUser]:
+        stmt = select(AdminUser).order_by(AdminUser.created_at.asc())
+        return list(self.db.execute(stmt).scalars().all())
+
+    def get_by_email(self, email: str) -> AdminUser | None:
+        stmt = select(AdminUser).where(func.lower(AdminUser.email) == email.strip().lower())
+        return self.db.execute(stmt).scalars().first()
+
+    def username_exists(self, username: str) -> bool:
+        stmt = select(AdminUser.id).where(func.lower(AdminUser.username) == username.lower())
+        return self.db.execute(stmt).first() is not None
+
     def add(self, user: AdminUser) -> AdminUser:
         self.db.add(user)
         self.db.flush()
         return user
+
+    def delete(self, user: AdminUser) -> None:
+        self.db.delete(user)
+        self.db.flush()
 
     # --- Refresh tokens --------------------------------------------------
     def add_refresh_token(self, token: RefreshToken) -> RefreshToken:

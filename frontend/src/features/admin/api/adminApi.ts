@@ -2,6 +2,8 @@ import { apiClient, axiosInstance } from '@/lib/apiClient';
 import type { PaginatedResponse } from '@/types/api';
 import type {
   ActivityEntry,
+  AdminProfileUpdatePayload,
+  AdminUser,
   AdminCard,
   AdminCategory,
   Bank,
@@ -34,6 +36,23 @@ export const authApi = {
   },
   me(): Promise<LoginResponse['user']> {
     return apiClient.get<LoginResponse['user']>('/admin/auth/me');
+  },
+  updateProfile(payload: AdminProfileUpdatePayload): Promise<AdminUser> {
+    return apiClient.patch<AdminUser>('/admin/auth/me', payload);
+  },
+  listAdmins(): Promise<AdminUser[]> {
+    return apiClient.get<AdminUser[]>('/admin/auth/admins');
+  },
+  createAdmin(payload: { email: string; password: string }): Promise<AdminUser> {
+    return apiClient.post<AdminUser>('/admin/auth/admins', payload);
+  },
+  updateAdminPassword(id: string, password: string): Promise<AdminUser> {
+    return apiClient.patch<AdminUser>(`/admin/auth/admins/${encodeURIComponent(id)}/password`, {
+      password,
+    });
+  },
+  deleteAdmin(id: string): Promise<void> {
+    return apiClient.delete<void>(`/admin/auth/admins/${encodeURIComponent(id)}`);
   },
 };
 

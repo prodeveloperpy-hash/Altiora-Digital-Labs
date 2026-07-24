@@ -30,6 +30,12 @@ export interface TokenResponse {
   expiresIn: number;
 }
 
+export interface AdminProfileUpdatePayload {
+  currentPassword: string;
+  email?: string;
+  newPassword?: string;
+}
+
 // --- Dashboard -----------------------------------------------------------
 export interface DashboardStats {
   totalCards: number;

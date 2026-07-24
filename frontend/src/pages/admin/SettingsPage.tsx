@@ -13,6 +13,8 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { FormField } from '@/components/ui/FormField';
 import { Spinner } from '@/components/ui/Spinner';
+import { AdminAccounts } from '@/components/admin/AdminAccounts';
+import { AdminProfileSecurity } from '@/components/admin/AdminProfileSecurity';
 
 /** Serialize a stored value into an editable string for the form. */
 function toDraft(setting: Setting): string {
@@ -122,6 +124,9 @@ export default function SettingsPage() {
           </Button>
         </div>
       </form>
+
+      <AdminProfileSecurity />
+      <AdminAccounts />
     </>
   );
 }

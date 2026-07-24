@@ -1,0 +1,131 @@
+2026-07-24 14:10:12 | INFO     | cardwise | Starting CardWise API v1.0.0 (development)
+2026-07-24 14:10:12 | INFO     | cardwise | Ensured database schema exists
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=db78889ef85d GET /filters -> 200 (52.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=a55042d70381 GET /filters -> 200 (49.5ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=84bdee2f00a7 GET /filters -> 200 (55.1ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=cdd198d8644c GET /filters -> 200 (17.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=afc7483befc0 GET /cards -> 200 (103.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=65ff54127521 GET /search -> 200 (99.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=b366c685920e GET /filters -> 200 (22.3ms)
+2026-07-24 14:10:25 | ERROR    | asyncio | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-07-24 14:10:25 | ERROR    | asyncio | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=b798ebcdc047 GET /cards -> 200 (121.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=14be3a180b75 GET /cards -> 200 (123.5ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=0e5fe65fa963 GET /cards -> 200 (126.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=5a7e2db31145 GET /cards -> 200 (64.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=dd134fc8d507 GET /search -> 200 (137.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=1fa0cbdd61ae GET /search -> 200 (133.2ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=f9864d1b389f GET /search -> 200 (73.3ms)
+2026-07-24 14:10:25 | ERROR    | asyncio | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-07-24 14:10:25 | ERROR    | asyncio | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=785be81f6052 GET /filters -> 200 (29.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=007c16c2c954 GET /search -> 200 (50.3ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=7806982e6e95 GET /filters -> 200 (36.3ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=9f95c36ce5f0 GET /filters -> 200 (29.3ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=d5ab755b005e GET /cards -> 200 (67.3ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=14543fdc57c7 GET /filters -> 200 (21.5ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=3171596266d5 GET /filters -> 200 (21.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=94df99500956 GET /search -> 200 (93.7ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=115413ec5032 GET /cards -> 200 (79.8ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=b895a94cf660 GET /cards -> 200 (93.2ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=a0503450c594 GET /search -> 200 (98.4ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=bc5a00473963 GET /search -> 200 (90.4ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=2f82e2d7e6ef GET /cards -> 200 (82.8ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=aeb48398863c GET /search -> 200 (66.6ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=3115016396f2 GET /cards -> 200 (65.8ms)
+2026-07-24 14:10:25 | INFO     | cardwise.request | request_id=b8984ab568da GET /search -> 200 (53.4ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=eba78b92c002 GET /filters -> 200 (20088.4ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=3f5cce5dc9ac GET /filters -> 200 (78.5ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=7c3ecba09390 GET /filters -> 200 (80.8ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=b89c8cb56e3d GET /filters -> 200 (81.0ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=d0574886d3ac GET /filters -> 200 (76.5ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=0f89fddb63ab GET /filters -> 200 (85.4ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=fad72bce451d GET /filters -> 200 (83.7ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=044d287ee200 GET /filters -> 200 (50.0ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=0a81e677d7fb GET /search -> 200 (20155.8ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=31879ce1f8e4 GET /cards -> 200 (20167.2ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=5f0b293c8f0c GET /cards -> 200 (154.1ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=28d418206fb1 GET /search -> 200 (155.7ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=b7dc29280bef GET /cards -> 200 (20180.3ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=7318ea48da5e GET /search -> 200 (169.2ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=3e8eb078beb8 GET /cards -> 200 (167.4ms)
+2026-07-24 14:10:52 | ERROR    | asyncio | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=03512e50a0e1 GET /cards -> 200 (140.8ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=c297665b7af8 GET /search -> 200 (179.2ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=6f85fe953b40 GET /cards -> 200 (157.3ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=d04763c77960 GET /cards -> 200 (184.8ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=0fa565da1e9b GET /search -> 200 (162.3ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=f4d48cedc54a GET /search -> 200 (143.0ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=704b2b1e548d GET /cards -> 200 (141.8ms)
+2026-07-24 14:10:52 | INFO     | cardwise.request | request_id=ff0171958687 GET /search -> 200 (132.3ms)
+2026-07-24 14:14:12 | INFO     | cardwise.request | request_id=c9b7979677e0 GET /health -> 200 (0.4ms)
+2026-07-24 14:14:12 | INFO     | cardwise.request | request_id=1db93b46020f GET /banks -> 200 (11.5ms)
+2026-07-24 14:14:12 | INFO     | cardwise.request | request_id=e099c8fb7c4d GET /filters -> 200 (5.9ms)
+2026-07-24 14:15:21 | INFO     | cardwise.request | request_id=7ecef8ecaff7 GET /cards -> 200 (10.2ms)
+2026-07-24 14:18:11 | INFO     | cardwise.request | request_id=1abddd95c64d GET /api/questionnaire -> 200 (18.5ms)
+2026-07-24 14:18:11 | INFO     | cardwise.request | request_id=98eddd56b3c7 GET /api/cards/featured -> 200 (32.6ms)
+2026-07-24 14:18:11 | INFO     | cardwise.request | request_id=6a209e3c3e12 GET /api/categories -> 200 (33.8ms)
+2026-07-24 14:18:33 | INFO     | cardwise.request | request_id=b29298e6762d GET /api/filters -> 200 (11.9ms)
+2026-07-24 14:18:34 | INFO     | cardwise.request | request_id=b379b2e70c52 GET /api/cards -> 200 (28.2ms)
+2026-07-24 14:21:14 | INFO     | cardwise.request | request_id=1fec3f3a1fb6 GET /api/cards -> 200 (21.5ms)
+2026-07-24 14:25:58 | INFO     | cardwise.request | request_id=2502bdbeaabd GET /api/questionnaire -> 200 (19.0ms)
+2026-07-24 14:25:58 | INFO     | cardwise.request | request_id=58edcf3a78cf GET /api/cards/featured -> 200 (33.8ms)
+2026-07-24 14:25:58 | INFO     | cardwise.request | request_id=4ee42ad57576 GET /api/categories -> 200 (42.5ms)
+2026-07-24 14:26:09 | INFO     | cardwise.request | request_id=4ff8b4be5cbf GET /api/faqs -> 200 (14.3ms)
+2026-07-24 14:26:24 | WARNING  | passlib.handlers.bcrypt | (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Hamza Sid\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-07-24 14:26:24 | INFO     | cardwise.request | request_id=bed2bd1a0f0d POST /api/admin/auth/login -> 200 (489.8ms)
+2026-07-24 14:26:24 | INFO     | cardwise.request | request_id=759969844cd6 GET /api/admin/dashboard -> 200 (25.4ms)
+2026-07-24 14:26:27 | INFO     | cardwise.request | request_id=ec07b592cb6e GET /api/admin/cards -> 200 (33.9ms)
+2026-07-24 14:26:30 | INFO     | cardwise.request | request_id=b8d6f32f88db GET /api/admin/categories -> 200 (22.2ms)
+2026-07-24 14:26:31 | INFO     | cardwise.request | request_id=688e680532a5 GET /api/admin/recommendation-rules -> 200 (16.3ms)
+2026-07-24 14:26:32 | INFO     | cardwise.request | request_id=20dbd12dffe7 GET /api/admin/settings -> 200 (12.9ms)

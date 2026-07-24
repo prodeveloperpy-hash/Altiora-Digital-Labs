@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.admin_deps import ActivityServiceDep, AuthServiceDep, CurrentAdmin
+from app.api.admin_deps import ActivityServiceDep, AuthServiceDep, CurrentAdmin, RequireSuperAdmin
 from app.schemas.auth import (
+    AdminAccountCreate,
+    AdminPasswordUpdate,
+    AdminProfileUpdate,
     AdminUserRead,
     LoginRequest,
     LoginResponse,
@@ -66,3 +69,70 @@ def logout(
 @router.get("/me", response_model=AdminUserRead, summary="Current authenticated administrator")
 def me(current: CurrentAdmin) -> AdminUserRead:
     return AdminUserRead.model_validate(current)
+
+
+@router.patch("/me", response_model=AdminUserRead, summary="Update current administrator")
+def update_me(
+    payload: AdminProfileUpdate,
+    current: CurrentAdmin,
+    auth: AuthServiceDep,
+) -> AdminUserRead:
+    return auth.update_profile(current, payload)
+
+
+@router.get("/admins", response_model=list[AdminUserRead], summary="List administrators")
+def list_admins(_: RequireSuperAdmin, auth: AuthServiceDep) -> list[AdminUserRead]:
+    return auth.list_admins()
+
+
+@router.post(
+    "/admins",
+    response_model=AdminUserRead,
+    status_code=201,
+    summary="Create administrator",
+)
+def create_admin(
+    payload: AdminAccountCreate,
+    current: RequireSuperAdmin,
+    auth: AuthServiceDep,
+    activity: ActivityServiceDep,
+) -> AdminUserRead:
+    result = auth.create_admin(payload)
+    activity.record(
+        actor=current.username,
+        actor_id=current.id,
+        action="create",
+        entity_type="admin_user",
+        entity_id=result.id,
+        summary=f"Created administrator {result.email}.",
+    )
+    return result
+
+
+@router.patch(
+    "/admins/{user_id}/password",
+    response_model=AdminUserRead,
+    summary="Reset administrator password",
+)
+def reset_admin_password(
+    user_id: str,
+    payload: AdminPasswordUpdate,
+    current: RequireSuperAdmin,
+    auth: AuthServiceDep,
+    activity: ActivityServiceDep,
+) -> AdminUserRead:
+    result = auth.update_admin_password(user_id, payload.password)
+    activity.record(
+        actor=current.username,
+        actor_id=current.id,
+        action="update",
+        entity_type="admin_user",
+        entity_id=result.id,
+        summary=f"Updated password for {result.email}.",
+    )
+    return result
+
+
+@router.delete("/admins/{user_id}", status_code=204, summary="Delete administrator")
+def delete_admin(user_id: str, current: RequireSuperAdmin, auth: AuthServiceDep):
+    auth.delete_admin(user_id, actor_id=current.id)

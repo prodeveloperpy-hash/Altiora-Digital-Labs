@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { AdminRole, AdminUser } from '@/features/admin/types';
+import type { AdminProfileUpdatePayload, AdminRole, AdminUser } from '@/features/admin/types';
 
 export interface AdminAuthContextValue {
   user: AdminUser | null;
@@ -8,6 +8,7 @@ export interface AdminAuthContextValue {
   isInitializing: boolean;
   login: (username: string, password: string, remember: boolean) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (payload: AdminProfileUpdatePayload) => Promise<AdminUser>;
   /** True when the current user's role meets or exceeds `minimum`. */
   hasRole: (minimum: AdminRole) => boolean;
 }
