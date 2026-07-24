@@ -37,6 +37,9 @@ def list_cards(
     no_annual_fee: Annotated[
         bool, Query(alias="noAnnualFee", description="Only cards with no annual fee")
     ] = False,
+    bank: Annotated[str | None, Query(description="Bank slug")] = None,
+    fee: Annotated[str | None, Query(description="Fee preset")] = None,
+    benefits: Annotated[str | None, Query(description="Comma-separated benefit codes")] = None,
     sort: Annotated[SortField, Query(description="Sort field")] = "recommended",
     direction: Annotated[Direction | None, Query(description="Sort direction")] = None,
     page: Annotated[int, Query(ge=1, description="1-indexed page number")] = 1,
@@ -51,6 +54,9 @@ def list_cards(
         credit_score=credit_score,
         max_annual_fee=max_annual_fee,
         no_annual_fee=no_annual_fee,
+        bank=bank,
+        fee=fee,
+        benefits=[value.strip() for value in benefits.split(",") if value.strip()] if benefits else [],
         sort=sort,
         direction=direction,
         page=page,

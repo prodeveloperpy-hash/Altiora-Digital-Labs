@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: ROUTES.questionnaire, label: 'Get matched', end: false },
   { to: ROUTES.about, label: 'About', end: false },
   { to: ROUTES.faq, label: 'FAQ', end: false },
+  { to: ROUTES.contact, label: 'Contact', end: false },
 ];
 
 export function Navbar() {

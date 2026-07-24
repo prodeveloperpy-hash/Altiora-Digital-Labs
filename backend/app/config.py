@@ -89,7 +89,7 @@ class Settings(BaseSettings):
 
     # --- Recommendation engine ------------------------------------------
     # Maximum number of recommendations returned from a single request.
-    recommendation_result_limit: int = 12
+    recommendation_result_limit: int = 5
     # Minimum raw score a card must reach to be recommended at all.
     recommendation_min_raw_score: float = 0.0
 

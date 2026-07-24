@@ -30,6 +30,31 @@ class CardRead(ResponseModel):
     summary: str
     description: str
     annual_fee: float
+    card_type: str
+    joining_fee: float
+    fee_waiver: str
+    eligibility: str
+    income_requirement: str
+    reward_rate: str
+    reward_points: str
+    cashback_categories: str
+    lounge_domestic: str
+    lounge_international: str
+    insurance: str
+    fuel: str
+    dining: str
+    shopping: str
+    travel: str
+    forex: str
+    upi: str
+    concierge: str
+    golf: str
+    welcome_bonus: str
+    renewal_benefits: str
+    add_on_cards: str
+    emi_conversion: str
+    balance_transfer: str
+    merchant_offers: str
     apr_min: float
     apr_max: float
     intro_apr: str | None = None

@@ -1,0 +1,23 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: sqlite:////data/cardwise.db
+      ENVIRONMENT: production
+      AUTO_CREATE_TABLES: "true"
+      AUTO_SEED: "true"
+      CORS_ORIGINS: '["http://localhost:8080"]'
+    volumes:
+      - cardwise-data:/data
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  cardwise-data:

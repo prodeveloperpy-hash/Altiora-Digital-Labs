@@ -15,6 +15,7 @@ const CardDetailsPage = lazy(() => import('@/pages/CardDetailsPage'));
 const ComparePage = lazy(() => import('@/pages/ComparePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const FaqPage = lazy(() => import('@/pages/FaqPage'));
+const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 // Admin pages (separate chunks; only loaded when the admin area is visited).
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
       { path: 'compare', element: <ComparePage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'faq', element: <FaqPage /> },
+      { path: 'contact', element: <ContactPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

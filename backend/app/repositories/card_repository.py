@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import String, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.card import CreditCard
 from app.models.category import Category
+from app.models.benefit import Benefit
 
 
 @dataclass
@@ -21,6 +22,9 @@ class CardQuery:
     credit_score: str | None = None
     max_annual_fee: float | None = None
     no_annual_fee: bool = False
+    bank: str | None = None
+    fee: str | None = None
+    benefits: list[str] | None = None
     sort: str = "recommended"
     direction: str | None = None
     page: int = 1
@@ -64,6 +68,16 @@ class CardRepository:
                     func.lower(CreditCard.issuer).like(term, escape="\\"),
                     func.lower(CreditCard.summary).like(term, escape="\\"),
                     func.lower(CreditCard.description).like(term, escape="\\"),
+                    func.lower(CreditCard.card_type).like(term, escape="\\"),
+                    func.lower(CreditCard.reward_rate).like(term, escape="\\"),
+                    func.lower(CreditCard.cashback_categories).like(term, escape="\\"),
+                    func.lower(CreditCard.benefits.cast(String)).like(term, escape="\\"),
+                    func.cast(CreditCard.annual_fee, String).like(term),
+                    func.cast(CreditCard.joining_fee, String).like(term),
+                    CreditCard.categories.any(func.lower(Category.name).like(term, escape="\\")),
+                    CreditCard.categories.any(func.lower(Category.slug).like(term, escape="\\")),
+                    CreditCard.benefit_links.any(func.lower(Benefit.name).like(term, escape="\\")),
+                    CreditCard.benefit_links.any(func.lower(Benefit.code).like(term, escape="\\")),
                 )
             )
         if query.category:
@@ -78,6 +92,16 @@ class CardRepository:
             stmt = stmt.where(CreditCard.annual_fee <= query.max_annual_fee)
         if query.no_annual_fee:
             stmt = stmt.where(CreditCard.annual_fee <= 0)
+        if query.bank:
+            stmt = stmt.where(CreditCard.bank_id == query.bank)
+        if query.fee == "lifetime-free":
+            stmt = stmt.where(CreditCard.annual_fee == 0, CreditCard.joining_fee == 0)
+        elif query.fee == "no-joining-fee":
+            stmt = stmt.where(CreditCard.joining_fee == 0)
+        elif query.fee == "low-annual-fee":
+            stmt = stmt.where(CreditCard.annual_fee > 0, CreditCard.annual_fee <= 1000)
+        for benefit in query.benefits or []:
+            stmt = stmt.where(CreditCard.benefit_links.any(Benefit.code == benefit))
         return stmt
 
     def _apply_sort(self, stmt, query: CardQuery):

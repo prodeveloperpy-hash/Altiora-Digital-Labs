@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/apiClient';
 import type { PaginatedResponse } from '@/types/api';
-import type { Category, CardListParams, CreditCard } from '@/features/cards/types';
+import type { Category, CardListParams, CreditCard, FilterCatalog } from '@/features/cards/types';
 
 /**
  * Card API surface. These call the backend endpoints (assumed to exist):
@@ -20,6 +20,9 @@ function toQuery(params: CardListParams): Record<string, string | number | boole
   if (params.creditScore) query.creditScore = params.creditScore;
   if (typeof params.maxAnnualFee === 'number') query.maxAnnualFee = params.maxAnnualFee;
   if (params.noAnnualFee) query.noAnnualFee = true;
+  if (params.bank) query.bank = params.bank;
+  if (params.fee) query.fee = params.fee;
+  if (params.benefits?.length) query.benefits = params.benefits.join(',');
   if (params.sort) query.sort = params.sort;
   if (params.direction) query.direction = params.direction;
   if (params.page) query.page = params.page;
@@ -52,5 +55,8 @@ export const cardsApi = {
 
   categories(signal?: AbortSignal): Promise<Category[]> {
     return apiClient.get<Category[]>('/categories', { signal });
+  },
+  filters(signal?: AbortSignal): Promise<FilterCatalog> {
+    return apiClient.get<FilterCatalog>('/filters', { signal });
   },
 };

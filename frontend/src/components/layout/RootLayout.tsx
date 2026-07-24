@@ -5,6 +5,7 @@ import { Footer } from './Footer';
 import { ScrollToTop } from './ScrollToTop';
 import { PageLoader } from '@/components/feedback/PageLoader';
 import { CompareTray } from '@/features/compare/components/CompareTray';
+import { Breadcrumbs } from './Breadcrumbs';
 
 /** App shell: persistent navigation, routed page content, footer, and overlays. */
 export function RootLayout() {
@@ -15,6 +16,7 @@ export function RootLayout() {
       </a>
       <ScrollToTop />
       <Navbar />
+      <Breadcrumbs />
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
         <Suspense fallback={<PageLoader />}>
           <Outlet />

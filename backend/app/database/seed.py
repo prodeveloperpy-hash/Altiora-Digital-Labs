@@ -39,9 +39,12 @@ logger = logging.getLogger("cardwise.seed")
 # --- Reference data -------------------------------------------------------
 
 BANKS: list[dict[str, str]] = [
-    {"slug": "summit-bank", "name": "Summit Bank", "website": "https://summitbank.example.com"},
-    {"slug": "meridian", "name": "Meridian Financial", "website": "https://meridian.example.com"},
-    {"slug": "harbor", "name": "Harbor Credit Union", "website": "https://harbor.example.com"},
+    {"slug": "hdfc-bank", "name": "HDFC Bank", "website": "https://www.hdfcbank.com/"},
+    {"slug": "sbi-card", "name": "SBI Card", "website": "https://www.sbicard.com/"},
+    {"slug": "axis-bank", "name": "Axis Bank", "website": "https://www.axisbank.com/"},
+    {"slug": "au-small-finance-bank", "name": "AU Small Finance Bank", "website": "https://www.au.bank.in/"},
+    {"slug": "american-express-india", "name": "American Express India", "website": "https://www.americanexpress.com/in/"},
+    {"slug": "bank-of-baroda", "name": "Bank of Baroda", "website": "https://www.bobfinancial.com/"},
 ]
 
 CATEGORIES: list[dict[str, str]] = [
@@ -72,30 +75,24 @@ REWARD_CATEGORIES: list[dict[str, str]] = [
 ]
 
 BENEFITS: list[dict[str, str]] = [
-    {"code": "no-fx-fee", "name": "No foreign transaction fees", "category": "travel",
-     "description": "Spend abroad without extra fees."},
-    {"code": "lounge-access", "name": "Airport lounge access", "category": "travel",
-     "description": "Relax in airport lounges before your flight."},
-    {"code": "travel-insurance", "name": "Travel & trip insurance", "category": "travel",
-     "description": "Coverage for trip cancellations and delays."},
-    {"code": "travel-credit", "name": "Annual travel credit", "category": "travel",
-     "description": "A statement credit toward travel each year."},
-    {"code": "concierge", "name": "Concierge service", "category": "travel",
-     "description": "24/7 concierge assistance."},
-    {"code": "purchase-protection", "name": "Purchase protection", "category": "protection",
-     "description": "Protection on eligible purchases."},
-    {"code": "credit-tracking", "name": "Free credit score tracking", "category": "tools",
-     "description": "Monitor your credit score for free."},
-    {"code": "credit-building", "name": "Credit-building tools", "category": "tools",
-     "description": "Tools and reporting to build credit history."},
-    {"code": "no-annual-fee", "name": "No annual fee", "category": "value",
-     "description": "No yearly fee to keep the card."},
-    {"code": "intro-apr", "name": "0% intro APR", "category": "financing",
-     "description": "An introductory 0% APR period."},
-    {"code": "employee-cards", "name": "Free employee cards", "category": "business",
-     "description": "Issue cards to employees at no cost."},
-    {"code": "expense-tools", "name": "Expense management tools", "category": "business",
-     "description": "Track and categorize business spending."},
+    {"code": "reward-points", "name": "Reward points", "category": "Rewards", "description": "Earn points on eligible spending.", "weight": 2.0},
+    {"code": "cashback", "name": "Cashback", "category": "Rewards", "description": "Receive cashback on purchases.", "weight": 2.5},
+    {"code": "domestic-lounge", "name": "Domestic lounge access", "category": "Travel", "description": "Complimentary domestic airport lounge visits.", "weight": 3.0},
+    {"code": "international-lounge", "name": "International lounge access", "category": "Travel", "description": "Complimentary international lounge visits.", "weight": 4.0},
+    {"code": "shopping-offers", "name": "Shopping offers", "category": "Shopping", "description": "Accelerated rewards and merchant discounts.", "weight": 1.5},
+    {"code": "dining-offers", "name": "Dining offers", "category": "Lifestyle", "description": "Dining discounts and accelerated rewards.", "weight": 1.5},
+    {"code": "upi", "name": "UPI payments", "category": "Digital Payments", "description": "Link an eligible RuPay card to UPI.", "weight": 2.0},
+    {"code": "fuel-surcharge", "name": "Fuel surcharge waiver", "category": "Fuel", "description": "Waiver of eligible fuel surcharge.", "weight": 1.5},
+    {"code": "insurance", "name": "Insurance cover", "category": "Insurance", "description": "Travel, accident, or purchase insurance.", "weight": 2.0},
+    {"code": "lifetime-free", "name": "Lifetime free", "category": "Fees", "description": "No joining or annual fee.", "weight": 3.0},
+    {"code": "easy-eligibility", "name": "Accessible eligibility", "category": "Eligibility", "description": "Accessible stated income criteria.", "weight": 1.0},
+    {"code": "air-miles", "name": "Air-mile redemption", "category": "Reward Redemption", "description": "Redeem points for flights or miles.", "weight": 2.0},
+    {"code": "concierge", "name": "Concierge service", "category": "Other Features", "description": "Premium concierge assistance.", "weight": 2.0},
+    {"code": "golf", "name": "Golf benefits", "category": "Lifestyle", "description": "Complimentary golf rounds or lessons.", "weight": 2.0},
+    {"code": "low-forex", "name": "Low forex markup", "category": "Travel", "description": "Reduced foreign currency markup.", "weight": 2.5},
+    {"code": "welcome-bonus", "name": "Welcome bonus", "category": "Rewards", "description": "Bonus points or vouchers on joining.", "weight": 1.0},
+    {"code": "fee-waiver", "name": "Annual fee waiver", "category": "Fees", "description": "Spend-based annual fee waiver.", "weight": 1.5},
+    {"code": "emi", "name": "EMI conversion", "category": "Digital Payments", "description": "Convert purchases into instalments.", "weight": 1.0},
 ]
 
 CREDIT_TIERS: list[dict[str, object]] = [
@@ -257,7 +254,14 @@ def _card(
     signup_bonus: str | None = None,
     signup_bonus_value: float | None = None,
     rewards_currency: str | None = None,
+    joining_fee: float = 0,
+    card_type: str = "Rewards",
+    fee_waiver: str = "",
+    eligibility: str = "Resident Indian applicant, subject to issuer approval.",
+    income_requirement: str = "As per issuer policy",
+    details: dict[str, str] | None = None,
 ) -> dict[str, object]:
+    details = details or {}
     return {
         "slug": slug, "name": name, "bank": bank, "network": network,
         "categories": categories, "benefits": benefits, "image_url": "",
@@ -269,7 +273,25 @@ def _card(
         "signup_bonus_value": signup_bonus_value, "reward_rates": reward_rates,
         "benefit_codes": benefits, "pros": pros, "cons": cons, "rating": rating,
         "review_count": review_count, "is_featured": is_featured,
-        "apply_url": f"https://apply.example.com/{slug}",
+        "apply_url": "", "joining_fee": joining_fee, "card_type": card_type,
+        "fee_waiver": fee_waiver, "eligibility": eligibility,
+        "income_requirement": income_requirement,
+        "reward_rate": details.get("reward_rate", rewards_summary),
+        "reward_points": details.get("reward_points", rewards_summary),
+        "cashback_categories": details.get("cashback_categories", ""),
+        "lounge_domestic": details.get("lounge_domestic", ""),
+        "lounge_international": details.get("lounge_international", ""),
+        "insurance": details.get("insurance", ""), "fuel": details.get("fuel", ""),
+        "dining": details.get("dining", ""), "shopping": details.get("shopping", ""),
+        "travel": details.get("travel", ""), "forex": details.get("forex", ""),
+        "upi": details.get("upi", ""), "concierge": details.get("concierge", ""),
+        "golf": details.get("golf", ""),
+        "welcome_bonus": details.get("welcome_bonus", signup_bonus or ""),
+        "renewal_benefits": details.get("renewal_benefits", ""),
+        "add_on_cards": details.get("add_on_cards", ""),
+        "emi_conversion": details.get("emi_conversion", "Available, subject to issuer terms"),
+        "balance_transfer": details.get("balance_transfer", "Available, subject to issuer terms"),
+        "merchant_offers": details.get("merchant_offers", ""),
     }
 
 
@@ -404,6 +426,54 @@ CARDS: list[dict[str, object]] = [
           rewards_currency="points"),
 ]
 
+# The PRD catalog supersedes the legacy synthetic fixtures above. Keeping the
+# old literal out of the seed path makes upgrades easy to review while ensuring
+# only genuine Indian products are inserted.
+CARDS = [
+    _card(slug="hdfc-regalia-gold", name="HDFC Bank Regalia Gold Credit Card", bank="hdfc-bank",
+          network="visa", categories=["travel", "rewards"], benefits=["reward-points", "domestic-lounge", "international-lounge", "insurance", "dining-offers", "welcome-bonus", "fee-waiver"],
+          summary="Premium travel and rewards card with lounge access.", description="Regalia Gold combines travel, dining, milestone and lounge benefits.",
+          annual_fee=2500, joining_fee=2500, fee_waiver="Waived on annual spends of ₹4 lakh", apr_min=0, apr_max=0, foreign_transaction_fee=0.02,
+          recommended_credit_score="good", rewards_summary="4 reward points per ₹150", reward_rates=[("all purchases", 4, "points")],
+          pros=["Domestic and international lounge access", "Milestone benefits"], cons=["Annual fee applies"], rating=0, review_count=0, is_featured=True,
+          income_requirement="Net monthly income ₹1 lakh (salaried)", details={"lounge_domestic":"12 visits/year","lounge_international":"6 Priority Pass visits/year","forex":"2% markup","dining":"Good Food Trail offers","insurance":"Air accident cover"}),
+    _card(slug="sbi-cashback-card", name="CASHBACK SBI Card", bank="sbi-card", network="visa",
+          categories=["cashback"], benefits=["cashback", "shopping-offers", "fee-waiver", "emi"],
+          summary="Straightforward cashback for online and offline purchases.", description="Earn accelerated cashback online with a simple monthly cap.",
+          annual_fee=999, joining_fee=999, fee_waiver="Waived on annual spends of ₹2 lakh", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
+          recommended_credit_score="good", rewards_summary="5% online and 1% offline cashback", reward_rates=[("online shopping",5,"percent"),("all purchases",1,"percent")],
+          pros=["Strong online cashback"], cons=["Selected exclusions and monthly cap"], rating=0, review_count=0, is_featured=True,
+          details={"cashback_categories":"Online and offline spends, subject to exclusions","shopping":"5% online cashback","emi_conversion":"Flexipay available"}),
+    _card(slug="axis-atlas", name="Axis Bank ATLAS Credit Card", bank="axis-bank", network="visa",
+          categories=["travel", "rewards"], benefits=["reward-points", "air-miles", "domestic-lounge", "international-lounge", "dining-offers", "insurance"],
+          summary="Travel-focused EDGE Miles card.", description="Earn EDGE Miles with travel redemptions and tier-based privileges.",
+          annual_fee=5000, joining_fee=5000, fee_waiver="", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
+          recommended_credit_score="excellent", rewards_summary="2 EDGE Miles per ₹100; 5 on direct travel", reward_rates=[("travel",5,"points"),("all purchases",2,"points")],
+          pros=["Transferable travel rewards", "Lounge privileges"], cons=["High annual fee"], rating=0, review_count=0, is_featured=True,
+          details={"lounge_domestic":"Tier-based visits","lounge_international":"Tier-based visits","travel":"EDGE Miles transfer partners","dining":"Dining Delights offers"}),
+    _card(slug="au-lit", name="AU Bank LIT Credit Card", bank="au-small-finance-bank", network="visa",
+          categories=["cashback", "no-annual-fee"], benefits=["cashback", "shopping-offers", "domestic-lounge", "fuel-surcharge", "lifetime-free", "emi"],
+          summary="Customisable lifetime-free credit card.", description="Choose paid feature packs to tailor cashback, rewards and lifestyle benefits.",
+          annual_fee=0, joining_fee=0, fee_waiver="Lifetime free base card", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
+          recommended_credit_score="good", rewards_summary="Customisable cashback and reward packs", reward_rates=[("selected spends",1,"percent")],
+          pros=["No joining or annual fee", "Customisable features"], cons=["Feature packs may cost extra"], rating=0, review_count=0,
+          details={"cashback_categories":"Selected categories through feature packs","fuel":"1% surcharge waiver","lounge_domestic":"Available through feature pack","merchant_offers":"Configurable feature packs"}),
+    _card(slug="amex-membership-rewards", name="American Express Membership Rewards Credit Card", bank="american-express-india", network="amex",
+          categories=["rewards", "travel"], benefits=["reward-points", "air-miles", "dining-offers", "shopping-offers", "welcome-bonus", "fee-waiver"],
+          summary="Milestone-led Membership Rewards card.", description="Earn Membership Rewards points with monthly spend and transaction milestones.",
+          annual_fee=4500, joining_fee=1000, fee_waiver="Renewal fee options based on annual spend", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
+          recommended_credit_score="good", rewards_summary="1 point per ₹50 plus milestone bonuses", reward_rates=[("all purchases",1,"points")],
+          pros=["Valuable monthly milestone bonuses", "Flexible redemption"], cons=["Acceptance can vary"], rating=0, review_count=0,
+          income_requirement="Personal annual income ₹6 lakh", details={"reward_points":"Membership Rewards points and monthly milestones","dining":"Amex dining offers","shopping":"Reward Multiplier partners"}),
+    _card(slug="bob-premier", name="Bank of Baroda Premier Credit Card", bank="bank-of-baroda", network="visa",
+          categories=["rewards", "travel"], benefits=["reward-points", "domestic-lounge", "fuel-surcharge", "insurance", "fee-waiver", "emi"],
+          summary="Everyday rewards with travel and fuel privileges.", description="A mid-market rewards card with lounge access and spend-based fee waiver.",
+          annual_fee=1000, joining_fee=1000, fee_waiver="Spend-based waiver as per issuer terms", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
+          recommended_credit_score="good", rewards_summary="Reward points on eligible spending", reward_rates=[("eligible purchases",2,"points")],
+          pros=["Lounge and fuel benefits", "Reasonable annual fee"], cons=["Reward exclusions apply"], rating=0, review_count=0,
+          details={"lounge_domestic":"Complimentary visits subject to spend criteria","fuel":"1% fuel surcharge waiver","insurance":"Personal accident cover"}),
+]
+
 FAQS: list[dict[str, object]] = [
     {"id": "how-recommendations-work", "question": "How do your recommendations work?",
      "answer": "We evaluate every card against transparent rules stored in our database — weighing your goal, credit profile, spending, fees, and preferences — and rank the best matches with a plain-language explanation for each.",
@@ -520,6 +590,21 @@ STARTER_QUESTIONS: list[dict[str, object]] = [
 ]
 
 
+# Homepage questionnaire: one database-backed checkbox group per PRD category.
+STARTER_QUESTIONS = [
+    {
+        "key": "benefits", "label": "Which card benefits matter to you?",
+        "help_text": "Choose as many as you like. Options are grouped by category.",
+        "type": "checkbox", "is_required": True, "config": {"grouped": True},
+        "options": [
+            {"label": benefit["name"], "value": benefit["code"], "weight": benefit["weight"],
+             "mapped_categories": [benefit["category"]]}
+            for benefit in BENEFITS
+        ],
+    }
+]
+
+
 def seed_admin_user(db: Session) -> bool:
     """Create the default administrator if no admin users exist."""
     if db.execute(select(AdminUser.id).limit(1)).first():
@@ -610,7 +695,8 @@ def seed(db: Session) -> None:
 
     benefit_by_code = {
         b["code"]: Benefit(id=b["code"], code=b["code"], name=b["name"],
-                           description=b["description"], category=b["category"])
+                           description=b["description"], category=b["category"],
+                           weight=float(b.get("weight", 1.0)))
         for b in BENEFITS
     }
     db.add_all(benefit_by_code.values())

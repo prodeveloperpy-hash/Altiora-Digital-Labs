@@ -26,6 +26,9 @@ export function useCardFilters() {
       creditScore: (searchParams.get('creditScore') as CreditScoreTier | null) ?? undefined,
       maxAnnualFee: maxAnnualFee !== null ? Number(maxAnnualFee) : undefined,
       noAnnualFee: searchParams.get('noAnnualFee') === 'true' || undefined,
+      bank: searchParams.get('bank') ?? undefined,
+      fee: searchParams.get('fee') ?? undefined,
+      benefits: searchParams.get('benefits')?.split(',').filter(Boolean),
       sort: (searchParams.get('sort') as CardSortField | null) ?? undefined,
       page: Number.isFinite(page) && page > 0 ? page : 1,
     };
@@ -54,6 +57,9 @@ export function useCardFilters() {
           if ('creditScore' in updates) apply('creditScore', updates.creditScore);
           if ('maxAnnualFee' in updates) apply('maxAnnualFee', updates.maxAnnualFee);
           if ('noAnnualFee' in updates) apply('noAnnualFee', updates.noAnnualFee);
+          if ('bank' in updates) apply('bank', updates.bank);
+          if ('fee' in updates) apply('fee', updates.fee);
+          if ('benefits' in updates) apply('benefits', updates.benefits?.join(','));
           if ('sort' in updates) apply('sort', updates.sort);
 
           if ('page' in updates) {
@@ -76,11 +82,9 @@ export function useCardFilters() {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.category) count += 1;
-    if (filters.network) count += 1;
-    if (filters.creditScore) count += 1;
-    if (typeof filters.maxAnnualFee === 'number') count += 1;
-    if (filters.noAnnualFee) count += 1;
+    if (filters.bank) count += 1;
+    if (filters.fee) count += 1;
+    count += filters.benefits?.length ?? 0;
     return count;
   }, [filters]);
 

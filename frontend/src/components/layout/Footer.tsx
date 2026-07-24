@@ -15,6 +15,7 @@ const FOOTER_SECTIONS = [
     links: [
       { to: ROUTES.about, label: 'About us' },
       { to: ROUTES.faq, label: 'FAQ' },
+      { to: ROUTES.contact, label: 'Contact' },
     ],
   },
 ] as const;

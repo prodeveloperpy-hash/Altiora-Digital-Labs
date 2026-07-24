@@ -19,6 +19,9 @@ import { useCategories } from '@/features/cards/hooks/useCategories';
 import { CATEGORY_LABELS } from '@/features/cards/constants';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ROUTES, APP_NAME } from '@/config/constants';
+import { HomeBenefitMatcher } from '@/features/questionnaire/components/HomeBenefitMatcher';
+import { CardSearchInput } from '@/features/cards/components/CardSearchInput';
+import { useNavigate } from 'react-router-dom';
 
 const STEPS = [
   {
@@ -48,6 +51,7 @@ export default function HomePage() {
   useDocumentTitle();
   const featured = useFeaturedCards();
   const categories = useCategories();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -111,6 +115,14 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <Section>
+        <div className="mx-auto mb-10 max-w-2xl">
+          <h2 className="mb-3 text-center text-2xl font-bold">Quick card search</h2>
+          <CardSearchInput value="" onDebouncedChange={(query) => query && navigate(`${ROUTES.search}?q=${encodeURIComponent(query)}`)} />
+        </div>
+        <HomeBenefitMatcher />
+      </Section>
 
       {/* How it works */}
       <Section>

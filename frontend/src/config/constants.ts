@@ -36,6 +36,7 @@ export const ROUTES = {
   compare: '/compare',
   about: '/about',
   faq: '/faq',
+  contact: '/contact',
   notFound: '*',
 } as const;
 

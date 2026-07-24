@@ -13,7 +13,7 @@ def test_list_cards_returns_paginated_camel_case(client: TestClient) -> None:
     body = response.json()
 
     assert set(body) >= {"items", "page", "pageSize", "total", "totalPages"}
-    assert body["total"] >= 12
+    assert body["total"] >= 6
     assert len(body["items"]) > 0
 
     card = body["items"][0]
@@ -47,7 +47,7 @@ def test_pagination(client: TestClient) -> None:
     assert len(body["items"]) == 5
     assert body["page"] == 1
     assert body["pageSize"] == 5
-    assert body["totalPages"] >= 3
+    assert body["totalPages"] >= 2
 
 
 def test_search_filters_results(client: TestClient) -> None:
@@ -86,9 +86,9 @@ def test_featured_cards(client: TestClient) -> None:
 
 
 def test_get_card_by_slug(client: TestClient) -> None:
-    response = client.get("/api/cards/everyday-cash-preferred")
+    response = client.get("/api/cards/hdfc-regalia-gold")
     assert response.status_code == 200
-    assert response.json()["slug"] == "everyday-cash-preferred"
+    assert response.json()["slug"] == "hdfc-regalia-gold"
 
 
 def test_get_card_not_found_returns_error_body(client: TestClient) -> None:
@@ -100,11 +100,11 @@ def test_get_card_not_found_returns_error_body(client: TestClient) -> None:
 
 
 def test_compare_preserves_order(client: TestClient) -> None:
-    ids = "horizon-travel-elite,everyday-cash-preferred"
+    ids = "axis-atlas,hdfc-regalia-gold"
     response = client.get("/api/cards/compare", params={"ids": ids})
     assert response.status_code == 200
     slugs = [card["slug"] for card in response.json()]
-    assert slugs == ["horizon-travel-elite", "everyday-cash-preferred"]
+    assert slugs == ["axis-atlas", "hdfc-regalia-gold"]
 
 
 def test_compare_requires_ids(client: TestClient) -> None:

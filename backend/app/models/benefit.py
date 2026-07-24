@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, String, Table, Text
+from sqlalchemy import Column, Float, ForeignKey, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin
@@ -32,6 +32,7 @@ class Benefit(Base, TimestampMixin):
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     # Grouping such as "travel", "protection", "rewards".
     category: Mapped[str] = mapped_column(String(64), default="general", nullable=False)
+    weight: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)
 
     cards: Mapped[list["CreditCard"]] = relationship(
         secondary=card_benefit,

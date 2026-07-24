@@ -37,6 +37,31 @@ export interface CreditCard {
   /** Long-form description shown on the details page. */
   description: string;
   annualFee: number;
+  cardType: string;
+  joiningFee: number;
+  feeWaiver: string;
+  eligibility: string;
+  incomeRequirement: string;
+  rewardRate: string;
+  rewardPoints: string;
+  cashbackCategories: string;
+  loungeDomestic: string;
+  loungeInternational: string;
+  insurance: string;
+  fuel: string;
+  dining: string;
+  shopping: string;
+  travel: string;
+  forex: string;
+  upi: string;
+  concierge: string;
+  golf: string;
+  welcomeBonus: string;
+  renewalBenefits: string;
+  addOnCards: string;
+  emiConversion: string;
+  balanceTransfer: string;
+  merchantOffers: string;
   aprMin: number;
   aprMax: number;
   introApr?: string;
@@ -76,8 +101,19 @@ export interface CardListParams {
   creditScore?: CreditScoreTier;
   maxAnnualFee?: number;
   noAnnualFee?: boolean;
+  bank?: string;
+  fee?: string;
+  benefits?: string[];
   sort?: CardSortField;
   direction?: 'asc' | 'desc';
   page?: number;
   pageSize?: number;
+}
+
+export interface FilterOption { code: string; name: string }
+export interface BenefitOption extends FilterOption { category: string; weight: number }
+export interface FilterCatalog {
+  banks: Array<{ slug: string; name: string }>;
+  fees: FilterOption[];
+  benefits: BenefitOption[];
 }

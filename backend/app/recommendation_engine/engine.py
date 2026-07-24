@@ -76,10 +76,15 @@ class RecommendationEngine:
                 int(max(0, min(100, round(100 * sc.raw_score / max_raw)))) if max_raw > 0 else 0
             )
 
-        # 4. Rank: eligible cards first, then by score, then rating as a tie-break.
+        # Legacy endpoint ranking deliberately excludes editorial/card ratings.
+        # The PRD public /recommend endpoint applies the complete seven-step
+        # deterministic tie-break sequence.
         scored.sort(
-            key=lambda sc: (sc.eligibility.eligible, sc.raw_score, sc.card.rating),
-            reverse=True,
+            key=lambda sc: (
+                not sc.eligibility.eligible,
+                -sc.raw_score,
+                sc.card.name.lower(),
+            ),
         )
         scored = scored[:result_limit]
         for index, sc in enumerate(scored, start=1):

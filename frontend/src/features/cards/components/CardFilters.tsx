@@ -1,138 +1,59 @@
+import { useQuery } from '@tanstack/react-query';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
-import { Slider } from '@/components/ui/Slider';
-import {
-  CATEGORY_OPTIONS,
-  CREDIT_SCORE_OPTIONS,
-  NETWORK_OPTIONS,
-} from '@/features/cards/constants';
-import { formatCurrency } from '@/lib/utils';
+import { cardsApi } from '@/features/cards/api/cardsApi';
 import type { CardListParams } from '@/features/cards/types';
-import type { CardCategory, CardNetwork, CreditScoreTier } from '@/features/cards/types';
 
-interface CardFiltersProps {
+interface Props {
   filters: CardListParams;
   onChange: (updates: Partial<CardListParams>) => void;
   onClear: () => void;
   activeFilterCount: number;
 }
 
-const MAX_FEE = 700;
-
-/** Filter panel for the search/browse experience. */
-export function CardFilters({ filters, onChange, onClear, activeFilterCount }: CardFiltersProps) {
-  const feeValue = filters.maxAnnualFee ?? MAX_FEE;
+export function CardFilters({ filters, onChange, onClear, activeFilterCount }: Props) {
+  const catalog = useQuery({ queryKey: ['filters'], queryFn: ({ signal }) => cardsApi.filters(signal) });
+  const toggleBenefit = (code: string, checked: boolean) => {
+    const current = filters.benefits ?? [];
+    onChange({ benefits: checked ? [...current, code] : current.filter((item) => item !== code) });
+  };
 
   return (
     <div className="space-y-6 rounded-xl border border-border bg-card p-5">
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-          Filters
-          {activeFilterCount > 0 && (
-            <span className="rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
-              {activeFilterCount}
-            </span>
-          )}
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          <SlidersHorizontal className="h-4 w-4" /> Filters
+          {activeFilterCount > 0 && <span className="rounded-full bg-primary px-2 text-xs text-primary-foreground">{activeFilterCount}</span>}
         </h2>
-        {activeFilterCount > 0 && (
-          <Button variant="link" onClick={onClear} className="text-xs">
-            <X className="h-3.5 w-3.5" aria-hidden="true" />
-            Clear all
-          </Button>
-        )}
+        {activeFilterCount > 0 && <Button variant="link" onClick={onClear}><X className="h-3.5 w-3.5" />Clear</Button>}
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="filter-category" className="text-sm font-medium text-foreground">
-          Category
-        </label>
-        <Select
-          id="filter-category"
-          value={filters.category ?? ''}
-          onChange={(e) =>
-            onChange({ category: (e.target.value || undefined) as CardCategory | undefined })
-          }
-        >
-          <option value="">All categories</option>
-          {CATEGORY_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+        <label htmlFor="filter-bank" className="text-sm font-medium">Bank</label>
+        <Select id="filter-bank" value={filters.bank ?? ''} onChange={(e) => onChange({ bank: e.target.value || undefined })}>
+          <option value="">All 6 banks</option>
+          {catalog.data?.banks.map((bank) => <option key={bank.slug} value={bank.slug}>{bank.name}</option>)}
         </Select>
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="filter-network" className="text-sm font-medium text-foreground">
-          Network
-        </label>
-        <Select
-          id="filter-network"
-          value={filters.network ?? ''}
-          onChange={(e) =>
-            onChange({ network: (e.target.value || undefined) as CardNetwork | undefined })
-          }
-        >
-          <option value="">All networks</option>
-          {NETWORK_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+        <label htmlFor="filter-fee" className="text-sm font-medium">Fees</label>
+        <Select id="filter-fee" value={filters.fee ?? ''} onChange={(e) => onChange({ fee: e.target.value || undefined })}>
+          <option value="">Any fee</option>
+          {catalog.data?.fees.map((fee) => <option key={fee.code} value={fee.code}>{fee.name}</option>)}
         </Select>
       </div>
 
-      <div className="space-y-1.5">
-        <label htmlFor="filter-credit" className="text-sm font-medium text-foreground">
-          Your credit
-        </label>
-        <Select
-          id="filter-credit"
-          value={filters.creditScore ?? ''}
-          onChange={(e) =>
-            onChange({ creditScore: (e.target.value || undefined) as CreditScoreTier | undefined })
-          }
-        >
-          <option value="">Any credit level</option>
-          {CREDIT_SCORE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label htmlFor="filter-fee" className="text-sm font-medium text-foreground">
-            Max annual fee
-          </label>
-          <span className="text-sm font-semibold text-primary">
-            {feeValue >= MAX_FEE ? 'Any' : formatCurrency(feeValue)}
-          </span>
-        </div>
-        <Slider
-          id="filter-fee"
-          min={0}
-          max={MAX_FEE}
-          step={25}
-          value={feeValue}
-          onValueChange={(value) =>
-            onChange({ maxAnnualFee: value >= MAX_FEE ? undefined : value })
-          }
-          aria-label="Maximum annual fee"
-        />
-      </div>
-
-      <Checkbox
-        id="filter-no-fee"
-        label="No annual fee only"
-        checked={Boolean(filters.noAnnualFee)}
-        onChange={(e) => onChange({ noAnnualFee: e.target.checked })}
-      />
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">Benefits</legend>
+        {catalog.data?.benefits.map((benefit) => (
+          <Checkbox key={benefit.code} id={`benefit-${benefit.code}`} label={benefit.name}
+            checked={filters.benefits?.includes(benefit.code) ?? false}
+            onChange={(e) => toggleBenefit(benefit.code, e.target.checked)} />
+        ))}
+      </fieldset>
     </div>
   );
 }
