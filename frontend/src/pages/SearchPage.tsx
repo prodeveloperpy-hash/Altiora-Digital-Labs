@@ -43,10 +43,10 @@ export default function SearchPage() {
             onDebouncedChange={(value) => setFilter({ search: value || undefined })}
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
           <Button
             variant="outline"
-            className="lg:hidden"
+            className="w-full lg:hidden"
             onClick={() => setMobileFiltersOpen(true)}
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -57,7 +57,7 @@ export default function SearchPage() {
               </span>
             )}
           </Button>
-          <div className="w-44">
+          <div className="min-w-0 sm:w-48">
             <Select
               aria-label="Sort cards"
               value={filters.sort ?? 'recommended'}

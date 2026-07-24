@@ -21,13 +21,13 @@ export function CardFilters({ filters, onChange, onClear, activeFilterCount }: P
   };
 
   return (
-    <div className="space-y-6 rounded-xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between">
+    <div className="min-w-0 space-y-6 rounded-xl border border-border bg-card p-4 sm:p-5">
+      <div className="flex min-w-0 items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
           <SlidersHorizontal className="h-4 w-4" /> Filters
           {activeFilterCount > 0 && <span className="rounded-full bg-primary px-2 text-xs text-primary-foreground">{activeFilterCount}</span>}
         </h2>
-        {activeFilterCount > 0 && <Button variant="link" onClick={onClear}><X className="h-3.5 w-3.5" />Clear</Button>}
+        {activeFilterCount > 0 && <Button variant="link" className="shrink-0" onClick={onClear}><X className="h-3.5 w-3.5" />Clear</Button>}
       </div>
 
       <div className="space-y-1.5">
@@ -46,13 +46,20 @@ export function CardFilters({ filters, onChange, onClear, activeFilterCount }: P
         </Select>
       </div>
 
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-medium">Benefits</legend>
-        {catalog.data?.benefits.map((benefit) => (
-          <Checkbox key={benefit.code} id={`benefit-${benefit.code}`} label={benefit.name}
-            checked={filters.benefits?.includes(benefit.code) ?? false}
-            onChange={(e) => toggleBenefit(benefit.code, e.target.checked)} />
-        ))}
+      <fieldset>
+        <legend className="mb-3 text-sm font-medium">Benefits</legend>
+        <div className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-1">
+          {catalog.data?.benefits.map((benefit) => (
+            <Checkbox
+              key={benefit.code}
+              id={`benefit-${benefit.code}`}
+              label={benefit.name}
+              className="w-full rounded-lg border border-border px-3 py-2.5 transition-colors hover:bg-muted/60 has-[:checked]:border-primary/40 has-[:checked]:bg-primary/5"
+              checked={filters.benefits?.includes(benefit.code) ?? false}
+              onChange={(e) => toggleBenefit(benefit.code, e.target.checked)}
+            />
+          ))}
+        </div>
       </fieldset>
     </div>
   );

@@ -23,23 +23,29 @@ export function HomeBenefitMatcher() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-8">
+    <form onSubmit={submit} className="min-w-0 space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold">What matters most in your next card?</h2>
+        <h2 className="text-2xl font-bold sm:text-3xl">What matters most in your next card?</h2>
         <p className="mt-2 text-muted-foreground">
           Select one, several, or every available requirement.
         </p>
       </div>
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {catalog.data?.categories.map((category) => (
-          <fieldset key={category.name} className="rounded-xl border bg-card p-5">
-            <legend className="px-1 font-semibold text-primary">{category.name}</legend>
-            <div className="mt-2 space-y-3">
+          <fieldset
+            key={category.name}
+            className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
+          >
+            <legend className="max-w-full px-1 text-sm font-semibold text-primary sm:text-base">
+              {category.name}
+            </legend>
+            <div className="mt-2 grid min-w-0 gap-2">
               {category.benefits.map((benefit) => (
                 <Checkbox
                   key={benefit.code}
                   id={`pick-${benefit.code}`}
                   label={benefit.name}
+                  className="w-full rounded-lg border border-transparent px-3 py-2 transition-colors hover:border-border hover:bg-muted/60 has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5"
                   checked={selected.includes(benefit.code)}
                   onChange={(event) =>
                     setSelected((current) =>
@@ -55,7 +61,7 @@ export function HomeBenefitMatcher() {
         ))}
       </div>
       <div className="flex justify-center">
-        <Button type="submit" size="lg" disabled={!selected.length}>
+        <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={!selected.length}>
           Show my top 5
         </Button>
       </div>

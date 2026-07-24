@@ -13,9 +13,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   return (
     <label
       htmlFor={id}
-      className={cn('inline-flex cursor-pointer items-center gap-2.5 text-sm', className)}
+      className={cn(
+        'flex min-w-0 cursor-pointer items-start gap-2.5 text-sm leading-5',
+        className,
+      )}
     >
-      <span className="relative inline-flex h-5 w-5 items-center justify-center">
+      <span className="relative mt-px inline-flex h-5 w-5 shrink-0 items-center justify-center">
         <input
           ref={ref}
           id={id}
@@ -28,7 +31,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           aria-hidden="true"
         />
       </span>
-      {label && <span className="text-foreground">{label}</span>}
+      {label && <span className="min-w-0 break-words text-foreground">{label}</span>}
     </label>
   );
 });
