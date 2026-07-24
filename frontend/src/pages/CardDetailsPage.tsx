@@ -8,12 +8,10 @@ import {
   ThumbsDown,
   ThumbsUp,
   Wallet,
-  Globe,
   CreditCard as CreditCardIcon,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Rating } from '@/components/ui/Rating';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { CardArtwork } from '@/features/cards/components/CardArtwork';
@@ -21,7 +19,6 @@ import { CompareToggleButton } from '@/features/compare/components/CompareToggle
 import { useCard } from '@/features/cards/hooks/useCard';
 import {
   CATEGORY_LABELS,
-  CREDIT_SCORE_LABELS,
   NETWORK_LABELS,
 } from '@/features/cards/constants';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -29,9 +26,7 @@ import { isApiError } from '@/lib/apiError';
 import { ROUTES } from '@/config/constants';
 import {
   formatAnnualFee,
-  formatAprRange,
   formatCurrency,
-  formatPercent,
 } from '@/lib/utils';
 import type { CreditCard, RewardRate } from '@/features/cards/types';
 
@@ -122,7 +117,6 @@ function CardDetails({ card }: { card: CreditCard }) {
             <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {card.name}
             </h1>
-            <Rating value={card.rating} reviewCount={card.reviewCount} />
           </div>
 
           <div className="flex flex-wrap gap-1.5">
@@ -137,32 +131,19 @@ function CardDetails({ card }: { card: CreditCard }) {
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatTile icon={Wallet} label="Annual fee" value={formatAnnualFee(card.annualFee)} />
-            <StatTile
-              icon={Percent}
-              label="Purchase APR"
-              value={`${card.aprMin.toFixed(2)}%+`}
-            />
-            <StatTile
-              icon={Globe}
-              label="Foreign fee"
-              value={card.foreignTransactionFee > 0 ? formatPercent(card.foreignTransactionFee) : 'None'}
-            />
+            <StatTile icon={Wallet} label="Joining fee" value={formatCurrency(card.joiningFee)} />
+            <StatTile icon={Percent} label="Reward rate" value={card.rewardRate || 'Not stated'} />
             <StatTile
               icon={CreditCardIcon}
-              label="Credit needed"
-              value={CREDIT_SCORE_LABELS[card.recommendedCreditScore].split(' (')[0] ?? ''}
+              label="Card type"
+              value={card.cardType}
             />
           </div>
 
-          {card.signupBonus && (
+          {card.welcomeBonus && (
             <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
               <p className="text-sm font-semibold text-primary">Welcome bonus</p>
-              <p className="mt-1 text-foreground">{card.signupBonus}</p>
-              {typeof card.signupBonusValue === 'number' && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Estimated value: {formatCurrency(card.signupBonusValue)}
-                </p>
-              )}
+              <p className="mt-1 text-foreground">{card.welcomeBonus}</p>
             </div>
           )}
         </div>
@@ -185,26 +166,17 @@ function CardDetails({ card }: { card: CreditCard }) {
         </section>
       )}
 
-      {/* Details grid: APR/fees + benefits */}
+      {/* Complete PRD card information */}
       <section className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Rates &amp; fees</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Fees &amp; eligibility</h2>
           <dl className="divide-y divide-border overflow-hidden rounded-xl border border-border">
             {[
               { label: 'Annual fee', value: formatAnnualFee(card.annualFee) },
-              { label: 'Purchase APR', value: formatAprRange(card.aprMin, card.aprMax) },
-              { label: 'Intro APR', value: card.introApr ?? 'Not available' },
-              {
-                label: 'Foreign transaction fee',
-                value:
-                  card.foreignTransactionFee > 0
-                    ? formatPercent(card.foreignTransactionFee)
-                    : 'None',
-              },
-              {
-                label: 'Recommended credit',
-                value: CREDIT_SCORE_LABELS[card.recommendedCreditScore],
-              },
+              { label: 'Joining fee', value: formatCurrency(card.joiningFee) },
+              { label: 'Fee waiver', value: card.feeWaiver || 'None stated' },
+              { label: 'Eligibility', value: card.eligibility },
+              { label: 'Income requirement', value: card.incomeRequirement },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between gap-4 bg-card p-4">
                 <dt className="text-sm text-muted-foreground">{row.label}</dt>
@@ -217,6 +189,14 @@ function CardDetails({ card }: { card: CreditCard }) {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">Benefits</h2>
           <ul className="space-y-2.5 rounded-xl border border-border bg-card p-5">
+            {[
+              ['Rewards', card.rewardPoints], ['Cashback', card.cashbackCategories],
+              ['Domestic lounge', card.loungeDomestic], ['International lounge', card.loungeInternational],
+              ['Insurance', card.insurance], ['Travel', card.travel], ['Shopping', card.shopping],
+              ['Fuel', card.fuel],
+            ].filter(([, detail]) => detail).map(([label, detail]) => (
+              <li key={label} className="text-sm"><strong>{label}:</strong> {detail}</li>
+            ))}
             {card.benefits.length > 0 ? (
               card.benefits.map((benefit, index) => (
                 <li key={index} className="flex items-start gap-2.5 text-sm text-foreground">

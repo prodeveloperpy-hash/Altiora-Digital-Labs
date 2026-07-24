@@ -12,6 +12,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
+from app.api.routes.public import router as public_router
 from app.config import settings
 from app.error_handlers import register_error_handlers
 from app.logging_config import configure_logging
@@ -36,7 +37,7 @@ async def lifespan(_app: FastAPI):
         logger.info("Ensured database schema exists")
 
     if settings.auto_seed:
-        from app.database.seed import ensure_admin_seed, seed_if_empty
+        from app.database.seed import ensure_admin_seed, seed_if_empty, sync_prd_catalog
 
         seeded = seed_if_empty()
         if seeded:
@@ -47,6 +48,8 @@ async def lifespan(_app: FastAPI):
         # existing databases gain the admin module without a reset.
         if ensure_admin_seed():
             logger.info("Provisioned admin module data (admin user / settings / questions)")
+        if sync_prd_catalog():
+            logger.info("Synchronized PRD bank, benefit, and credit-card catalog")
 
     yield
     logger.info("Shutting down %s", settings.app_name)
@@ -99,6 +102,9 @@ def create_app() -> FastAPI:
     # --- Routes ----------------------------------------------------------
     # API routes live under the configured prefix (default "/api").
     app.include_router(api_router, prefix=settings.api_prefix)
+    # PRD 12 specifies these public resources at their literal root paths.
+    # Keep /api aliases for the SPA and backward compatibility.
+    app.include_router(public_router)
 
     # Serve uploaded admin assets (card art, bank logos) as static files.
     upload_path = Path(settings.upload_dir)

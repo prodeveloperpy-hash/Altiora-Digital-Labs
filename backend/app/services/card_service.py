@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.exceptions import ConflictError, NotFoundError, ValidationError
 from app.models.card import CreditCard
+from app.models.benefit import Benefit
 from app.models.reward_rate import RewardRate
 from app.repositories.card_repository import CardQuery, CardRepository
 from app.schemas.card import AdminCardRead, CardCreate, CardRead, CardUpdate
@@ -91,6 +92,31 @@ class CardService:
             summary=payload.summary,
             description=payload.description,
             annual_fee=payload.annual_fee,
+            card_type=payload.card_type,
+            joining_fee=payload.joining_fee,
+            fee_waiver=payload.fee_waiver,
+            eligibility=payload.eligibility,
+            income_requirement=payload.income_requirement,
+            reward_rate=payload.reward_rate,
+            reward_points=payload.reward_points,
+            cashback_categories=payload.cashback_categories,
+            lounge_domestic=payload.lounge_domestic,
+            lounge_international=payload.lounge_international,
+            insurance=payload.insurance,
+            fuel=payload.fuel,
+            dining=payload.dining,
+            shopping=payload.shopping,
+            travel=payload.travel,
+            forex=payload.forex,
+            upi=payload.upi,
+            concierge=payload.concierge,
+            golf=payload.golf,
+            welcome_bonus=payload.welcome_bonus,
+            renewal_benefits=payload.renewal_benefits,
+            add_on_cards=payload.add_on_cards,
+            emi_conversion=payload.emi_conversion,
+            balance_transfer=payload.balance_transfer,
+            merchant_offers=payload.merchant_offers,
             apr_min=payload.apr_min,
             apr_max=payload.apr_max,
             intro_apr=payload.intro_apr,
@@ -101,7 +127,6 @@ class CardService:
             rewards_currency=payload.rewards_currency,
             signup_bonus=payload.signup_bonus,
             signup_bonus_value=payload.signup_bonus_value,
-            benefits=payload.benefits,
             pros=payload.pros,
             cons=payload.cons,
             rating=payload.rating,
@@ -111,6 +136,7 @@ class CardService:
             is_active=payload.is_active,
         )
         card.categories = self._resolve_categories(payload.categories)
+        card.benefit_links = self._resolve_benefits(payload.benefit_codes)
         card.reward_rates = [
             RewardRate(
                 category=rate.category, rate=rate.rate, unit=rate.unit, cap=rate.cap, position=i
@@ -147,6 +173,10 @@ class CardService:
                 )
                 for i, rate in enumerate(rates)
             ]
+        if "benefit_codes" in data:
+            card.benefit_links = self._resolve_benefits(data.pop("benefit_codes") or [])
+        # Legacy display-only input is superseded by normalized benefitCodes.
+        data.pop("benefits", None)
 
         for field, value in data.items():
             setattr(card, field, value)
@@ -176,3 +206,16 @@ class CardService:
                 errors={"categories": f"Unknown category slugs: {', '.join(missing)}"},
             )
         return categories
+
+    def _resolve_benefits(self, codes: list[str]) -> list[Benefit]:
+        benefits = list(
+            self.db.query(Benefit).filter(Benefit.code.in_(codes)).all()
+        ) if codes else []
+        found = {benefit.code for benefit in benefits}
+        missing = sorted(set(codes) - found)
+        if missing:
+            raise ValidationError(
+                "One or more benefits do not exist.",
+                errors={"benefitCodes": f"Unknown benefit codes: {', '.join(missing)}"},
+            )
+        return benefits

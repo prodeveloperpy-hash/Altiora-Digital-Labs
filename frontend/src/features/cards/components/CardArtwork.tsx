@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import { Wifi } from 'lucide-react';
-import { CREDIT_SCORE_LABELS, NETWORK_LABELS } from '@/features/cards/constants';
+import { NETWORK_LABELS } from '@/features/cards/constants';
 import type { CreditCard } from '@/features/cards/types';
-import { formatAnnualFee, formatAprRange } from '@/lib/utils';
+import { formatAnnualFee, formatCurrency } from '@/lib/utils';
 
 interface CardArtworkProps {
   card: Pick<
@@ -13,9 +13,8 @@ interface CardArtworkProps {
     | 'imageUrl'
     | 'annualFee'
     | 'rewardsSummary'
-    | 'aprMin'
-    | 'aprMax'
-    | 'recommendedCreditScore'
+    | 'joiningFee'
+    | 'cardType'
   >;
   className?: string;
 }
@@ -30,7 +29,7 @@ export function CardArtwork({ card, className }: CardArtworkProps) {
         className="flip-card"
         tabIndex={0}
         role="img"
-        aria-label={`${card.name}. Focus or hover to show annual fee, rewards, APR, and recommended credit.`}
+        aria-label={`${card.name}. Focus or hover to show fees, rewards, and card type.`}
       >
         <div className="flip-card-inner">
           <div className="card-face flip-card-front">
@@ -76,12 +75,12 @@ export function CardArtwork({ card, className }: CardArtworkProps) {
                 <dd>{card.rewardsSummary}</dd>
               </div>
               <div className="fact fact-wide">
-                <dt>APR</dt>
-                <dd>{formatAprRange(card.aprMin, card.aprMax)}</dd>
+                <dt>Joining fee</dt>
+                <dd>{formatCurrency(card.joiningFee)}</dd>
               </div>
               <div className="fact">
-                <dt>Recommended credit</dt>
-                <dd>{CREDIT_SCORE_LABELS[card.recommendedCreditScore]}</dd>
+                <dt>Card type</dt>
+                <dd>{card.cardType}</dd>
               </div>
             </dl>
             <div className="signature-row">

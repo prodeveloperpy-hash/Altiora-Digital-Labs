@@ -15,6 +15,7 @@ class BankRead(ResponseModel):
     name: str
     country: str
     website: str
+    logo_url: str
     description: str
     is_active: bool
     # Populated by the service layer (count of cards issued by this bank).
@@ -27,6 +28,7 @@ class BankCreate(RequestModel):
     name: str = Field(min_length=1, max_length=160)
     country: str = Field(default="US", max_length=64)
     website: str = Field(default="", max_length=255)
+    logo_url: str = Field(default="", max_length=512)
     description: str = Field(default="", max_length=2000)
     is_active: bool = True
 
@@ -36,5 +38,6 @@ class BankUpdate(RequestModel):
     name: str | None = Field(default=None, min_length=1, max_length=160)
     country: str | None = Field(default=None, max_length=64)
     website: str | None = Field(default=None, max_length=255)
+    logo_url: str | None = Field(default=None, max_length=512)
     description: str | None = Field(default=None, max_length=2000)
     is_active: bool | None = None

@@ -10,11 +10,25 @@ import { useCompare } from '@/features/compare/context/useCompare';
 import { useCompareCards } from '@/features/cards/hooks/useCompareCards';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { MAX_COMPARE_CARDS, ROUTES } from '@/config/constants';
+import { STORAGE_KEYS } from '@/config/constants';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/lib/apiClient';
 
 export default function ComparePage() {
   useDocumentTitle('Compare cards');
   const { ids, count, remove, clear } = useCompare();
   const query = useCompareCards(ids);
+  const benefits: string[] = JSON.parse(
+    sessionStorage.getItem(STORAGE_KEYS.recommendationBenefits) ?? '[]',
+  );
+  const scoreQuery = useQuery({
+    queryKey: ['comparison-scores', benefits],
+    queryFn: () => apiClient.post<{ recommendations: Array<{ card: { id: string }; score: number }> }, { benefits: string[] }>('/recommend', { benefits }),
+    enabled: benefits.length > 0,
+  });
+  const scores = Object.fromEntries(
+    (scoreQuery.data?.recommendations ?? []).map((item) => [item.card.id, item.score]),
+  );
 
   if (count === 0) {
     return (
@@ -32,6 +46,18 @@ export default function ComparePage() {
               Browse cards to compare
             </Link>
           }
+        />
+      </div>
+    );
+  }
+  if (count === 1) {
+    return (
+      <div className="container py-16">
+        <EmptyState
+          icon={GitCompareArrows}
+          title="Choose one more card"
+          description="The PRD comparison view compares exactly two supported cards side by side."
+          action={<Link to={ROUTES.search} className="rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground">Add second card</Link>}
         />
       </div>
     );
@@ -80,7 +106,7 @@ export default function ComparePage() {
           }
         />
       ) : (
-        <ComparisonTable cards={query.data} onRemove={remove} />
+        <ComparisonTable cards={query.data} onRemove={remove} scores={scores} />
       )}
     </div>
   );

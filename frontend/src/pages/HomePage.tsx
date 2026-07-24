@@ -87,7 +87,7 @@ export default function HomePage() {
             </div>
             <dl className="flex flex-wrap gap-x-8 gap-y-3 pt-4">
               {[
-                { label: 'Cards analyzed', value: '300+' },
+                { label: 'Supported banks', value: '6' },
                 { label: 'Match accuracy', value: 'Rules-based' },
                 { label: 'Cost to you', value: 'Free' },
               ].map((stat) => (
@@ -116,7 +116,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Section>
+      <Section id="recommendation-questionnaire">
         <div className="mx-auto mb-10 max-w-2xl">
           <h2 className="mb-3 text-center text-2xl font-bold">Quick card search</h2>
           <CardSearchInput value="" onDebouncedChange={(query) => query && navigate(`${ROUTES.search}?q=${encodeURIComponent(query)}`)} />

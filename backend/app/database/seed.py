@@ -57,6 +57,17 @@ CATEGORIES: list[dict[str, str]] = [
     {"slug": "business", "name": "Business", "description": "Tools and rewards for your business."},
     {"slug": "secured", "name": "Secured", "description": "Rebuild credit with a deposit."},
     {"slug": "no-annual-fee", "name": "No annual fee", "description": "Great value, no yearly cost."},
+    {"slug": "questionnaire-rewards", "name": "Rewards", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-travel", "name": "Travel", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-shopping", "name": "Shopping", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-lifestyle", "name": "Lifestyle", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-digital-payments", "name": "Digital Payments", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-fuel", "name": "Fuel", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-insurance", "name": "Insurance", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-fees", "name": "Fees", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-eligibility", "name": "Eligibility", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-reward-redemption", "name": "Reward Redemption", "description": "Questionnaire benefit category."},
+    {"slug": "questionnaire-other-features", "name": "Other Features", "description": "Questionnaire benefit category."},
 ]
 
 REWARD_CATEGORIES: list[dict[str, str]] = [
@@ -93,6 +104,15 @@ BENEFITS: list[dict[str, str]] = [
     {"code": "welcome-bonus", "name": "Welcome bonus", "category": "Rewards", "description": "Bonus points or vouchers on joining.", "weight": 1.0},
     {"code": "fee-waiver", "name": "Annual fee waiver", "category": "Fees", "description": "Spend-based annual fee waiver.", "weight": 1.5},
     {"code": "emi", "name": "EMI conversion", "category": "Digital Payments", "description": "Convert purchases into instalments.", "weight": 1.0},
+    {"code": "bonus-rewards", "name": "Accelerated reward points", "category": "Rewards", "description": "Earn enhanced points in selected categories.", "weight": 7.0},
+    {"code": "hotel-rewards", "name": "Hotel rewards", "category": "Travel", "description": "Hotel-related rewards and privileges.", "weight": 8.0},
+    {"code": "online-shopping", "name": "Online shopping rewards", "category": "Shopping", "description": "Rewards for eligible online purchases.", "weight": 7.0},
+    {"code": "entertainment", "name": "Entertainment benefits", "category": "Lifestyle", "description": "Offers on movies and entertainment.", "weight": 6.0},
+    {"code": "fuel-rewards", "name": "Fuel rewards", "category": "Fuel", "description": "Points or cashback on fuel purchases.", "weight": 8.0},
+    {"code": "purchase-protection", "name": "Purchase protection", "category": "Insurance", "description": "Protection for eligible card purchases.", "weight": 8.0},
+    {"code": "beginner-friendly", "name": "Entry-level eligibility", "category": "Eligibility", "description": "Lower entry eligibility requirements.", "weight": 5.0},
+    {"code": "cash-redemption", "name": "Cash redemption", "category": "Reward Redemption", "description": "Redeem rewards as statement credit or cash.", "weight": 6.0},
+    {"code": "add-on-cards", "name": "Add-on cards", "category": "Other Features", "description": "Supplementary cards for family members.", "weight": 4.0},
 ]
 
 CREDIT_TIERS: list[dict[str, object]] = [
@@ -264,7 +284,7 @@ def _card(
     details = details or {}
     return {
         "slug": slug, "name": name, "bank": bank, "network": network,
-        "categories": categories, "benefits": benefits, "image_url": "",
+        "categories": categories, "image_url": "",
         "summary": summary, "description": description, "annual_fee": annual_fee,
         "apr_min": apr_min, "apr_max": apr_max, "intro_apr": intro_apr,
         "intro_apr_months": intro_apr_months, "foreign_transaction_fee": foreign_transaction_fee,
@@ -431,14 +451,14 @@ CARDS: list[dict[str, object]] = [
 # only genuine Indian products are inserted.
 CARDS = [
     _card(slug="hdfc-regalia-gold", name="HDFC Bank Regalia Gold Credit Card", bank="hdfc-bank",
-          network="visa", categories=["travel", "rewards"], benefits=["reward-points", "domestic-lounge", "international-lounge", "insurance", "dining-offers", "welcome-bonus", "fee-waiver"],
+          network="visa", categories=["travel", "rewards"], benefits=["reward-points", "domestic-lounge", "international-lounge", "insurance", "dining-offers", "welcome-bonus", "fee-waiver", "low-forex"],
           summary="Premium travel and rewards card with lounge access.", description="Regalia Gold combines travel, dining, milestone and lounge benefits.",
           annual_fee=2500, joining_fee=2500, fee_waiver="Waived on annual spends of ₹4 lakh", apr_min=0, apr_max=0, foreign_transaction_fee=0.02,
           recommended_credit_score="good", rewards_summary="4 reward points per ₹150", reward_rates=[("all purchases", 4, "points")],
           pros=["Domestic and international lounge access", "Milestone benefits"], cons=["Annual fee applies"], rating=0, review_count=0, is_featured=True,
           income_requirement="Net monthly income ₹1 lakh (salaried)", details={"lounge_domestic":"12 visits/year","lounge_international":"6 Priority Pass visits/year","forex":"2% markup","dining":"Good Food Trail offers","insurance":"Air accident cover"}),
     _card(slug="sbi-cashback-card", name="CASHBACK SBI Card", bank="sbi-card", network="visa",
-          categories=["cashback"], benefits=["cashback", "shopping-offers", "fee-waiver", "emi"],
+          categories=["cashback"], benefits=["cashback", "shopping-offers", "online-shopping", "fee-waiver", "emi"],
           summary="Straightforward cashback for online and offline purchases.", description="Earn accelerated cashback online with a simple monthly cap.",
           annual_fee=999, joining_fee=999, fee_waiver="Waived on annual spends of ₹2 lakh", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
           recommended_credit_score="good", rewards_summary="5% online and 1% offline cashback", reward_rates=[("online shopping",5,"percent"),("all purchases",1,"percent")],
@@ -452,14 +472,14 @@ CARDS = [
           pros=["Transferable travel rewards", "Lounge privileges"], cons=["High annual fee"], rating=0, review_count=0, is_featured=True,
           details={"lounge_domestic":"Tier-based visits","lounge_international":"Tier-based visits","travel":"EDGE Miles transfer partners","dining":"Dining Delights offers"}),
     _card(slug="au-lit", name="AU Bank LIT Credit Card", bank="au-small-finance-bank", network="visa",
-          categories=["cashback", "no-annual-fee"], benefits=["cashback", "shopping-offers", "domestic-lounge", "fuel-surcharge", "lifetime-free", "emi"],
+          categories=["cashback", "no-annual-fee"], benefits=["cashback", "shopping-offers", "domestic-lounge", "fuel-surcharge", "lifetime-free", "emi", "upi"],
           summary="Customisable lifetime-free credit card.", description="Choose paid feature packs to tailor cashback, rewards and lifestyle benefits.",
           annual_fee=0, joining_fee=0, fee_waiver="Lifetime free base card", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
           recommended_credit_score="good", rewards_summary="Customisable cashback and reward packs", reward_rates=[("selected spends",1,"percent")],
           pros=["No joining or annual fee", "Customisable features"], cons=["Feature packs may cost extra"], rating=0, review_count=0,
           details={"cashback_categories":"Selected categories through feature packs","fuel":"1% surcharge waiver","lounge_domestic":"Available through feature pack","merchant_offers":"Configurable feature packs"}),
     _card(slug="amex-membership-rewards", name="American Express Membership Rewards Credit Card", bank="american-express-india", network="amex",
-          categories=["rewards", "travel"], benefits=["reward-points", "air-miles", "dining-offers", "shopping-offers", "welcome-bonus", "fee-waiver"],
+          categories=["rewards", "travel"], benefits=["reward-points", "air-miles", "dining-offers", "shopping-offers", "entertainment", "welcome-bonus", "fee-waiver"],
           summary="Milestone-led Membership Rewards card.", description="Earn Membership Rewards points with monthly spend and transaction milestones.",
           annual_fee=4500, joining_fee=1000, fee_waiver="Renewal fee options based on annual spend", apr_min=0, apr_max=0, foreign_transaction_fee=0.035,
           recommended_credit_score="good", rewards_summary="1 point per ₹50 plus milestone bonuses", reward_rates=[("all purchases",1,"points")],
@@ -723,8 +743,6 @@ def seed(db: Session) -> None:
         card.issuer = bank.name
         card.categories = [category_by_slug[slug] for slug in category_slugs]
         card.benefit_links = [benefit_by_code[code] for code in benefit_codes]
-        # The JSON `benefits` list (consumed by the frontend) holds benefit names.
-        card.benefits = [benefit_by_code[code].name for code in benefit_codes]
         card.reward_rates = [
             RewardRate(category=r[0], rate=r[1], unit=r[2] if len(r) > 2 else "percent", position=i)
             for i, r in enumerate(reward_rates)
@@ -754,6 +772,104 @@ def seed_if_empty() -> bool:
             return False
         seed(db)
         return True
+    finally:
+        db.close()
+
+
+def sync_prd_catalog() -> bool:
+    """Idempotently migrate the bundled synthetic catalog to the PRD catalog.
+
+    Only known demo records are removed; administrator-created banks and cards
+    are preserved. The six supported banks, benefit definitions, and bundled
+    cards are then upserted so existing SQLite installations receive the same
+    reference data as fresh installations.
+    """
+    db = SessionLocal()
+    changed = False
+    legacy_card_slugs = {
+        "everyday-cash-preferred", "horizon-travel-elite", "pinnacle-points-plus",
+        "clearway-balance-transfer", "steadyrate-low-interest", "campus-starter",
+        "foundation-secured", "enterprise-business-rewards", "grocery-hero-cash",
+        "voyager-miles-signature", "unity-no-fee-cash", "prestige-rewards-infinite",
+    }
+    try:
+        for card in db.execute(
+            select(CreditCard).where(CreditCard.slug.in_(legacy_card_slugs))
+        ).scalars():
+            db.delete(card)
+            changed = True
+        db.flush()
+        for bank in db.execute(
+            select(Bank).where(Bank.slug.in_(["summit-bank", "meridian", "harbor"]))
+        ).scalars():
+            db.delete(bank)
+            changed = True
+
+        banks: dict[str, Bank] = {}
+        for spec in BANKS:
+            bank = db.get(Bank, spec["slug"])
+            if bank is None:
+                bank = Bank(id=spec["slug"], slug=spec["slug"])
+                db.add(bank)
+                changed = True
+            bank.name = spec["name"]
+            bank.website = spec["website"]
+            bank.country = "India"
+            bank.is_active = True
+            banks[spec["slug"]] = bank
+
+        benefits: dict[str, Benefit] = {}
+        for spec in BENEFITS:
+            benefit = db.get(Benefit, spec["code"])
+            if benefit is None:
+                benefit = Benefit(id=spec["code"], code=spec["code"])
+                db.add(benefit)
+                changed = True
+            benefit.name = spec["name"]
+            benefit.description = spec["description"]
+            benefit.category = spec["category"]
+            benefit.weight = float(spec["weight"])
+            benefits[spec["code"]] = benefit
+
+        categories: dict[str, Category] = {}
+        for spec in CATEGORIES:
+            category = db.get(Category, spec["slug"])
+            if category is None:
+                category = Category(id=spec["slug"], slug=spec["slug"])
+                db.add(category)
+                changed = True
+            category.name = spec["name"]
+            category.description = spec["description"]
+            categories[spec["slug"]] = category
+        db.flush()
+
+        relationship_fields = {"bank", "categories", "benefit_codes", "reward_rates"}
+        for original in CARDS:
+            spec = dict(original)
+            card = db.execute(
+                select(CreditCard).where(CreditCard.slug == spec["slug"])
+            ).scalars().first()
+            if card is None:
+                card = CreditCard(slug=spec["slug"], name=spec["name"], issuer="")
+                db.add(card)
+                changed = True
+            for field, value in spec.items():
+                if field not in relationship_fields:
+                    setattr(card, field, value)
+            card.bank = banks[spec["bank"]]
+            card.issuer = card.bank.name
+            card.categories = [categories[slug] for slug in spec["categories"]]
+            card.benefit_links = [benefits[code] for code in spec["benefit_codes"]]
+            card.reward_rates = [
+                RewardRate(category=row[0], rate=row[1], unit=row[2], position=index)
+                for index, row in enumerate(spec["reward_rates"])
+            ]
+
+        db.commit()
+        return changed
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 

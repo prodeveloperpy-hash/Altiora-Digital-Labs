@@ -1,143 +1,100 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ClipboardList, RefreshCw, Sparkles } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
+import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { ErrorState } from '@/components/feedback/ErrorState';
+import { LoadingState } from '@/components/feedback/LoadingState';
 import { EmptyState } from '@/components/feedback/EmptyState';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { RecommendationCard } from '@/features/recommendations/components/RecommendationCard';
-import { useRecommendations } from '@/features/recommendations/hooks/useRecommendations';
-import { useQuestionnaireStore } from '@/features/questionnaire/hooks/useQuestionnaireStore';
-import { CATEGORY_LABELS, CREDIT_SCORE_LABELS } from '@/features/cards/constants';
+import { CompareToggleButton } from '@/features/compare/components/CompareToggleButton';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { ROUTES } from '@/config/constants';
-import { formatCurrency } from '@/lib/utils';
+import type { CreditCard } from '@/features/cards/types';
 
-function RecommendationSkeleton() {
-  return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <div className="grid gap-5 md:grid-cols-[240px_1fr]">
-        <Skeleton className="aspect-[1.586/1] w-full rounded-xl" />
-        <div className="space-y-3">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-24 w-full rounded-lg" />
-          <Skeleton className="h-10 w-40 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
+interface Recommendation {
+  card: CreditCard;
+  ranking: number;
+  score: number;
+  matchPercentage: number;
+  matchedBenefits: string[];
+  missingBenefits: string[];
+  explanation: string;
+}
+
+interface RecommendationResponse {
+  recommendations: Recommendation[];
+  selectedCount: number;
+}
+
+function selectedBenefits(): string[] {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEYS.recommendationBenefits) ?? '[]');
+  } catch {
+    return [];
+  }
 }
 
 export default function RecommendationsPage() {
-  useDocumentTitle('Your recommendations');
-  const { answers } = useQuestionnaireStore();
-  const query = useRecommendations(answers);
+  useDocumentTitle('Recommendations');
+  const benefits = selectedBenefits();
+  const query = useQuery({
+    queryKey: ['recommendations', benefits],
+    queryFn: () =>
+      apiClient.post<RecommendationResponse, { benefits: string[] }>('/recommend', { benefits }),
+    enabled: benefits.length > 0,
+  });
 
-  // No answers yet — guide the user to the questionnaire.
-  if (!answers) {
-    return (
-      <div className="container py-16">
-        <EmptyState
-          icon={ClipboardList}
-          title="No recommendations yet"
-          description="Complete the short questionnaire and we'll match you with cards tailored to your profile."
-          action={
-            <Link
-              to={ROUTES.questionnaire}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Start the questionnaire
-            </Link>
-          }
-        />
-      </div>
-    );
+  if (!benefits.length) {
+    return <div className="container py-14"><EmptyState title="Choose your preferences first" description="Use the homepage questionnaire to select at least one benefit." action={<Link className="text-primary underline" to={ROUTES.home}>Open questionnaire</Link>} /></div>;
   }
+  if (query.isLoading) return <LoadingState label="Ranking every supported card…" />;
+  if (query.isError) return <div className="container py-14"><ErrorState error={query.error} onRetry={() => query.refetch()} /></div>;
 
   return (
     <div className="container space-y-8 py-10 sm:py-14">
-      <PageHeader
-        eyebrow="Your matches"
-        title="Cards picked for you"
-        description="Ranked by how well each card fits the goals, credit, and spending you told us about."
-        actions={
-          <Button
-            variant="outline"
-            onClick={() => query.refetch()}
-            isLoading={query.isFetching && !query.isLoading}
-            loadingText="Refreshing…"
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden="true" />
-            Refresh
-          </Button>
-        }
-      />
-
-      {/* Answer summary */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card/60 p-4">
-        <span className="text-sm font-medium text-muted-foreground">Based on:</span>
-        <Badge variant="secondary">Goal: {CATEGORY_LABELS[answers.primaryGoal]}</Badge>
-        <Badge variant="secondary">Credit: {CREDIT_SCORE_LABELS[answers.creditScore]}</Badge>
-        <Badge variant="secondary">Spend: {formatCurrency(answers.monthlySpend)}/mo</Badge>
-        <Badge variant="secondary">
-          Max fee: {answers.maxAnnualFee >= 700 ? 'No limit' : formatCurrency(answers.maxAnnualFee)}
-        </Badge>
-        <Link
-          to={ROUTES.questionnaire}
-          className="ml-auto text-sm font-semibold text-primary hover:underline"
-        >
-          Edit answers
-        </Link>
-      </div>
-
-      {query.isLoading ? (
-        <div className="space-y-6">
-          {Array.from({ length: 3 }, (_, i) => (
-            <RecommendationSkeleton key={i} />
-          ))}
-        </div>
-      ) : query.isError ? (
-        <ErrorState
-          error={query.error}
-          onRetry={() => query.refetch()}
-          isRetrying={query.isFetching}
-        />
-      ) : !query.data || query.data.recommendations.length === 0 ? (
-        <EmptyState
-          title="No strong matches found"
-          description="Try adjusting your answers — for example, raising your maximum annual fee or broadening your goal."
-          action={
-            <Link
-              to={ROUTES.questionnaire}
-              className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Adjust answers
-            </Link>
-          }
-        />
-      ) : (
-        <>
-          <p className="text-sm text-muted-foreground">
-            Showing {query.data.recommendations.length} of {query.data.evaluatedCount} cards
-            evaluated.
-          </p>
-          <div className="space-y-6">
-            {query.data.recommendations.map((recommendation, index) => (
-              <div
-                key={recommendation.card.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${Math.min(index, 6) * 80}ms` }}
-              >
-                <RecommendationCard recommendation={recommendation} rank={index + 1} />
+      <PageHeader title="Your top card recommendations" description={`Every supported card was scored against your ${benefits.length} selected requirements.`} />
+      <div className="space-y-6">
+        {query.data?.recommendations.map((match) => {
+          const card = match.card;
+          return (
+            <article key={card.id} className="grid gap-6 rounded-2xl border bg-card p-6 shadow-card lg:grid-cols-[220px_1fr]">
+              <div>
+                {card.imageUrl ? <img src={card.imageUrl} alt={`${card.name} card`} className="w-full rounded-xl" /> : <div className="flex aspect-[1.586] items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent p-5 text-center font-bold text-primary-foreground">{card.name}</div>}
+                <p className="mt-3 text-center text-2xl font-bold text-primary">{match.matchPercentage}% match</p>
               </div>
-            ))}
-          </div>
-        </>
-      )}
+              <div>
+                <p className="text-sm font-bold text-primary">#{match.ranking} · Score {match.score}</p>
+                <h2 className="mt-1 text-2xl font-bold">{card.name}</h2>
+                <p className="text-muted-foreground">{card.issuer}</p>
+                <p className="mt-3">{match.explanation}</p>
+                <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                  <div><dt className="font-semibold">Annual fee</dt><dd>₹{card.annualFee}</dd></div>
+                  <div><dt className="font-semibold">Joining fee</dt><dd>₹{card.joiningFee}</dd></div>
+                  <div><dt className="font-semibold">Fee waiver</dt><dd>{card.feeWaiver || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Reward rate</dt><dd>{card.rewardRate || 'Not stated'}</dd></div>
+                  <div><dt className="font-semibold">Cashback</dt><dd>{card.cashbackCategories || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Lounge access</dt><dd>{[card.loungeDomestic, card.loungeInternational].filter(Boolean).join('; ') || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Insurance</dt><dd>{card.insurance || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Fuel</dt><dd>{card.fuel || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Shopping</dt><dd>{card.shopping || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Travel</dt><dd>{card.travel || 'None stated'}</dd></div>
+                  <div><dt className="font-semibold">Eligibility</dt><dd>{card.eligibility}</dd></div>
+                  <div><dt className="font-semibold">Income requirement</dt><dd>{card.incomeRequirement}</dd></div>
+                </dl>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <p className="rounded-lg bg-success/10 p-3 text-sm"><strong>Matched:</strong> {match.matchedBenefits.join(', ') || 'None'}</p>
+                  <p className="rounded-lg bg-secondary p-3 text-sm"><strong>Missing:</strong> {match.missingBenefits.join(', ') || 'None'}</p>
+                  <p className="text-sm"><strong>Pros:</strong> {card.pros.join(', ') || 'None stated'}</p>
+                  <p className="text-sm"><strong>Cons:</strong> {card.cons.join(', ') || 'None stated'}</p>
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <CompareToggleButton card={card} />
+                  <Link to={ROUTES.cardDetails(card.id)} className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground">View details</Link>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }

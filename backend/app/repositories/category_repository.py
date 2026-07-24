@@ -15,7 +15,11 @@ class CategoryRepository:
         self.db = db
 
     def list(self) -> list[Category]:
-        stmt = select(Category).order_by(Category.name.asc())
+        stmt = (
+            select(Category)
+            .where(~Category.slug.like("questionnaire-%"))
+            .order_by(Category.name.asc())
+        )
         return list(self.db.execute(stmt).scalars().all())
 
     def get_by_slug(self, slug: str) -> Category | None:

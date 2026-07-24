@@ -6,7 +6,7 @@ export const APP_NAME = env.appName;
 export const APP_TAGLINE = 'Smarter credit card recommendations, tailored to you.';
 
 /** Maximum number of cards a user may place side-by-side in the comparison tray. */
-export const MAX_COMPARE_CARDS = 4;
+export const MAX_COMPARE_CARDS = 2;
 
 /** Default page size for paginated card listings. */
 export const DEFAULT_PAGE_SIZE = 12;
@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   theme: 'cardwise-theme',
   compare: 'cardwise-compare',
   questionnaire: 'cardwise-questionnaire-answers',
+  recommendationBenefits: 'cardwise-recommendation-benefits',
   adminAccessToken: 'cardwise-admin-access-token',
   adminRefreshToken: 'cardwise-admin-refresh-token',
   adminUser: 'cardwise-admin-user',
@@ -28,7 +29,7 @@ export const STORAGE_KEYS = {
 /** Centralized route paths — the single source of truth for navigation. */
 export const ROUTES = {
   home: '/',
-  questionnaire: '/questionnaire',
+  questionnaire: '/#recommendation-questionnaire',
   recommendations: '/recommendations',
   cards: '/cards',
   cardDetails: (id: string = ':id') => `/cards/${id}`,

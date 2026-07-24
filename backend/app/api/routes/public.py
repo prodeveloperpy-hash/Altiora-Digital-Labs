@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.exceptions import NotFoundError, ValidationError
 from app.models.bank import Bank
 from app.models.benefit import Benefit
 from app.models.card import CreditCard
@@ -22,16 +23,49 @@ router = APIRouter(tags=["Public"])
 
 
 class BenefitSelection(BaseModel):
-    benefits: list[str] = Field(default_factory=list, max_length=100)
+    benefits: list[str] = Field(min_length=1, max_length=100)
 
 
 class CompareRequest(BaseModel):
-    ids: list[str] = Field(min_length=1, max_length=10)
+    ids: list[str] = Field(min_length=2, max_length=2)
+
+
+FILTER_BENEFITS = [
+    {"code": "cashback", "name": "Cashback"},
+    {"code": "travel", "name": "Travel"},
+    {"code": "lounge-access", "name": "Lounge Access"},
+    {"code": "shopping", "name": "Shopping"},
+    {"code": "fuel", "name": "Fuel"},
+    {"code": "dining", "name": "Dining"},
+    {"code": "insurance", "name": "Insurance"},
+    {"code": "entertainment", "name": "Entertainment"},
+    {"code": "forex", "name": "Forex"},
+    {"code": "upi", "name": "UPI"},
+]
+QUESTIONNAIRE_CATEGORY_ORDER = [
+    "Rewards", "Travel", "Shopping", "Lifestyle", "Digital Payments", "Fuel",
+    "Insurance", "Fees", "Eligibility", "Reward Redemption", "Other Features",
+]
 
 
 @router.get("/banks", response_model=list[BankRead])
-def banks(db: Session = Depends(get_db)) -> list[BankRead]:
+def banks(response: Response, db: Session = Depends(get_db)) -> list[BankRead]:
+    response.headers["Cache-Control"] = "public, max-age=300"
     return BankService(db).list_banks()
+
+
+@router.get("/cards", response_model=PaginatedResponse[CardRead])
+def cards(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(12, alias="pageSize", ge=1, le=100),
+    db: Session = Depends(get_db),
+) -> PaginatedResponse[CardRead]:
+    return CardService(db).list_cards(CardQuery(page=page, page_size=page_size))
+
+
+@router.get("/cards/{card_id}", response_model=CardRead)
+def card_details(card_id: str, db: Session = Depends(get_db)) -> CardRead:
+    return CardService(db).get_card(card_id)
 
 
 @router.get("/search", response_model=PaginatedResponse[CardRead])
@@ -52,22 +86,49 @@ def search(
 
 
 @router.get("/filters")
-def filters(db: Session = Depends(get_db)) -> dict:
+def filters(response: Response, db: Session = Depends(get_db)) -> dict:
+    response.headers["Cache-Control"] = "public, max-age=300"
     banks = db.execute(select(Bank).where(Bank.is_active.is_(True)).order_by(Bank.name)).scalars()
-    benefits = db.execute(select(Benefit).order_by(Benefit.category, Benefit.name)).scalars()
-    benefit_rows = [
-        {"code": b.code, "name": b.name, "category": b.category, "weight": b.weight}
-        for b in benefits
-    ]
     return {
-        "banks": [{"slug": b.slug, "name": b.name} for b in banks],
+        "banks": [
+            {
+                "slug": b.slug,
+                "name": "American Express" if b.slug == "american-express-india" else b.name,
+            }
+            for b in banks
+        ],
         "fees": [
             {"code": "lifetime-free", "name": "Lifetime Free"},
             {"code": "no-joining-fee", "name": "No Joining Fee"},
             {"code": "low-annual-fee", "name": "Low Annual Fee"},
         ],
-        "benefits": benefit_rows,
+        "benefits": FILTER_BENEFITS,
     }
+
+
+@router.get("/questionnaire")
+def questionnaire(response: Response, db: Session = Depends(get_db)) -> dict:
+    """Database-driven grouped questionnaire; weights remain server-side."""
+    response.headers["Cache-Control"] = "public, max-age=300"
+    benefits = db.execute(
+        select(Benefit).order_by(Benefit.category, Benefit.name)
+    ).scalars()
+    grouped = _group_benefits(benefits)
+    return {
+        "categories": [
+            {"name": category, "benefits": grouped.get(category, [])}
+            for category in QUESTIONNAIRE_CATEGORY_ORDER
+        ]
+    }
+
+
+def _group_benefits(benefits) -> dict[str, list[dict[str, str]]]:
+    grouped: dict[str, list[dict[str, str]]] = {}
+    for benefit in benefits:
+        grouped.setdefault(benefit.category, []).append(
+            {"code": benefit.code, "name": benefit.name, "description": benefit.description}
+        )
+    return grouped
 
 
 @router.post("/recommend")
@@ -78,7 +139,12 @@ def recommend(payload: BenefitSelection, db: Session = Depends(get_db)) -> dict:
         b.code: b.weight
         for b in db.execute(select(Benefit).where(Benefit.code.in_(selected))).scalars()
     }
-    total_weight = sum(weights.values())
+    unknown = [code for code in selected if code not in weights]
+    if unknown:
+        raise ValidationError(
+            "One or more selected benefits are invalid.",
+            errors={"benefits": f"Unknown benefit codes: {', '.join(unknown)}"},
+        )
     ranked = []
     for card in cards:
         card_codes = set(card.benefit_codes)
@@ -87,11 +153,12 @@ def recommend(payload: BenefitSelection, db: Session = Depends(get_db)) -> dict:
         score = sum(weights.get(code, 0) for code in matched)
         coverage = round(100 * len(matched) / len(selected)) if selected else 0
         ranked.append((card, matched, missing, score, coverage))
-    # PRD tie breakers: weighted score, coverage, lower joining fee, lower annual
-    # fee, higher benefit count, higher reward rate text, then alphabetical.
+    # PRD 8.4 exact priority: score, matched count, coverage, annual fee,
+    # joining fee, numeric reward rate, then alphabetical card name.
     ranked.sort(key=lambda x: (
-        -x[3], -x[4], x[0].joining_fee, x[0].annual_fee,
-        -len(x[0].benefit_codes), x[0].reward_rate.lower(), x[0].name.lower(),
+        -x[3], -len(x[1]), -x[4], x[0].annual_fee, x[0].joining_fee,
+        -max((rate.rate for rate in x[0].reward_rates), default=0),
+        x[0].name.casefold(),
     ))
     items = []
     names = {
@@ -112,9 +179,12 @@ def recommend(payload: BenefitSelection, db: Session = Depends(get_db)) -> dict:
                 else "This card did not match any selected benefits."
             ),
         })
-    return {"recommendations": items, "selectedCount": len(selected), "totalWeight": total_weight}
+    return {"recommendations": items, "selectedCount": len(selected)}
 
 
 @router.post("/compare", response_model=list[CardRead])
 def compare(payload: CompareRequest, db: Session = Depends(get_db)) -> list[CardRead]:
-    return CardService(db).compare(payload.ids)
+    cards = CardService(db).compare(payload.ids)
+    if len(cards) != 2:
+        raise NotFoundError("One or more selected cards were not found.")
+    return cards

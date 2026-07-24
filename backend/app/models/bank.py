@@ -21,6 +21,7 @@ class Bank(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     country: Mapped[str] = mapped_column(String(64), default="US", nullable=False)
     website: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    logo_url: Mapped[str] = mapped_column(String(512), default="", nullable=False)
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

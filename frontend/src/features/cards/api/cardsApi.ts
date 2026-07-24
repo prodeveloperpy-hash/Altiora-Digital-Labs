@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/apiClient';
 import type { PaginatedResponse } from '@/types/api';
-import type { Category, CardListParams, CreditCard, FilterCatalog } from '@/features/cards/types';
+import type { Category, CardListParams, CreditCard, FilterCatalog, QuestionnaireCatalog } from '@/features/cards/types';
 
 /**
  * Card API surface. These call the backend endpoints (assumed to exist):
@@ -47,10 +47,7 @@ export const cardsApi = {
   },
 
   compare(ids: string[], signal?: AbortSignal): Promise<CreditCard[]> {
-    return apiClient.get<CreditCard[]>('/cards/compare', {
-      params: { ids: ids.join(',') },
-      signal,
-    });
+    return apiClient.post<CreditCard[], { ids: string[] }>('/compare', { ids }, { signal });
   },
 
   categories(signal?: AbortSignal): Promise<Category[]> {
@@ -58,5 +55,8 @@ export const cardsApi = {
   },
   filters(signal?: AbortSignal): Promise<FilterCatalog> {
     return apiClient.get<FilterCatalog>('/filters', { signal });
+  },
+  questionnaire(signal?: AbortSignal): Promise<QuestionnaireCatalog> {
+    return apiClient.get<QuestionnaireCatalog>('/questionnaire', { signal });
   },
 };

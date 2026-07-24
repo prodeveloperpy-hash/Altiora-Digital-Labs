@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Rating } from '@/components/ui/Rating';
 import { CardArtwork } from './CardArtwork';
 import { CompareToggleButton } from '@/features/compare/components/CompareToggleButton';
 import { CATEGORY_LABELS } from '@/features/cards/constants';
@@ -45,10 +44,12 @@ export function CreditCardItem({ card, highlight }: CreditCardItemProps) {
           >
             {card.name}
           </Link>
-          <Rating value={card.rating} reviewCount={card.reviewCount} size="sm" className="pt-0.5" />
+          <p className="pt-0.5 text-sm font-medium text-primary">{card.rewardRate || card.rewardsSummary}</p>
         </div>
 
         <p className="line-clamp-2 text-sm text-muted-foreground">{card.summary}</p>
+        <p className="text-sm"><strong>Annual fee:</strong> {card.annualFee <= 0 ? 'Lifetime free' : `₹${card.annualFee}`}</p>
+        <p className="line-clamp-2 text-xs text-muted-foreground">{card.benefits.slice(0, 3).join(' · ')}</p>
 
         <div className="flex flex-wrap gap-1.5">
           {card.categories.slice(0, 3).map((category) => (

@@ -23,6 +23,7 @@ class BankService:
             name=bank.name,
             country=bank.country,
             website=bank.website,
+            logo_url=bank.logo_url,
             description=bank.description,
             is_active=bank.is_active,
             card_count=counts.get(bank.id, 0),
@@ -47,6 +48,7 @@ class BankService:
             name=payload.name,
             country=payload.country,
             website=payload.website,
+            logo_url=payload.logo_url,
             description=payload.description,
             is_active=payload.is_active,
         )

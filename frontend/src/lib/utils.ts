@@ -6,12 +6,12 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
-/** Format a number as USD currency. Whole numbers render without decimals. */
+/** Format Indian rupee amounts. Whole numbers render without decimals. */
 export function formatCurrency(value: number, options: Intl.NumberFormatOptions = {}): string {
   const hasFraction = value % 1 !== 0;
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: hasFraction ? 2 : 0,
     maximumFractionDigits: 2,
     ...options,

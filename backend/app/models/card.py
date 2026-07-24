@@ -81,7 +81,6 @@ class CreditCard(Base, TimestampMixin):
     signup_bonus: Mapped[str | None] = mapped_column(String(300), nullable=True)
     signup_bonus_value: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    benefits: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     pros: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     cons: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
 
@@ -123,3 +122,8 @@ class CreditCard(Base, TimestampMixin):
     def benefit_codes(self) -> list[str]:
         """Structured benefit codes attached to this card."""
         return [benefit.code for benefit in self.benefit_links]
+
+    @property
+    def benefit_names(self) -> list[str]:
+        """Human-readable benefits, derived from the normalized association."""
+        return [benefit.name for benefit in self.benefit_links]

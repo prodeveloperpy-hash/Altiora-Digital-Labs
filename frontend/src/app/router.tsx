@@ -8,7 +8,6 @@ import { ROUTES } from '@/config/constants';
 
 // Route-level code splitting: each page is a separate chunk.
 const HomePage = lazy(() => import('@/pages/HomePage'));
-const QuestionnairePage = lazy(() => import('@/pages/QuestionnairePage'));
 const RecommendationsPage = lazy(() => import('@/pages/RecommendationsPage'));
 const SearchPage = lazy(() => import('@/pages/SearchPage'));
 const CardDetailsPage = lazy(() => import('@/pages/CardDetailsPage'));
@@ -40,7 +39,7 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'questionnaire', element: <QuestionnairePage /> },
+      { path: 'questionnaire', element: <Navigate to="/#recommendation-questionnaire" replace /> },
       { path: 'recommendations', element: <RecommendationsPage /> },
       { path: 'search', element: <SearchPage /> },
       { path: 'cards/:id', element: <CardDetailsPage /> },

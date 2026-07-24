@@ -7,6 +7,6 @@ export function useCompareCards(ids: string[]) {
   return useQuery({
     queryKey: queryKeys.cards.compare(ids),
     queryFn: ({ signal }) => cardsApi.compare(ids, signal),
-    enabled: ids.length > 0,
+    enabled: ids.length === 2,
   });
 }

@@ -71,7 +71,6 @@ class CardRepository:
                     func.lower(CreditCard.card_type).like(term, escape="\\"),
                     func.lower(CreditCard.reward_rate).like(term, escape="\\"),
                     func.lower(CreditCard.cashback_categories).like(term, escape="\\"),
-                    func.lower(CreditCard.benefits.cast(String)).like(term, escape="\\"),
                     func.cast(CreditCard.annual_fee, String).like(term),
                     func.cast(CreditCard.joining_fee, String).like(term),
                     CreditCard.categories.any(func.lower(Category.name).like(term, escape="\\")),
@@ -101,7 +100,19 @@ class CardRepository:
         elif query.fee == "low-annual-fee":
             stmt = stmt.where(CreditCard.annual_fee > 0, CreditCard.annual_fee <= 1000)
         for benefit in query.benefits or []:
-            stmt = stmt.where(CreditCard.benefit_links.any(Benefit.code == benefit))
+            criteria = {
+                "cashback": or_(Benefit.code == "cashback", Benefit.category == "Rewards"),
+                "travel": Benefit.category == "Travel",
+                "lounge-access": Benefit.code.in_(["domestic-lounge", "international-lounge"]),
+                "shopping": Benefit.category == "Shopping",
+                "fuel": Benefit.category == "Fuel",
+                "dining": or_(Benefit.code == "dining-offers", Benefit.category == "Lifestyle"),
+                "insurance": Benefit.category == "Insurance",
+                "entertainment": Benefit.code == "entertainment",
+                "forex": Benefit.code == "low-forex",
+                "upi": Benefit.code == "upi",
+            }.get(benefit, Benefit.code == benefit)
+            stmt = stmt.where(CreditCard.benefit_links.any(criteria))
         return stmt
 
     def _apply_sort(self, stmt, query: CardQuery):

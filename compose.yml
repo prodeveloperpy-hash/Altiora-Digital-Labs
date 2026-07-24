@@ -10,11 +10,16 @@ services:
     volumes:
       - cardwise-data:/data
     restart: unless-stopped
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   frontend:
     build: ./frontend
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "8080:80"
     restart: unless-stopped
